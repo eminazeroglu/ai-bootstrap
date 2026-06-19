@@ -1,15 +1,15 @@
-# claude-brain
+# ai-bootstrap
 
 > Personal AI infrastructure bootstrap for Claude Code — one command, every project, every machine.
 
-**Status**: 🟡 Mərhələ A tamamlandı (research). Mərhələ B (proof of concept) hazırlanır.
+**Status**: 🟡 Mərhələ A tamamlandı (research + decisions). Mərhələ B (proof of concept) hazırlanır.
 
 ## What is this?
 
-`claude-brain` is an open-source, npm-distributed bootstrap kit that turns any computer into a fully-equipped Claude Code workstation in one command:
+`ai-bootstrap` is an open-source, npm-distributed bootstrap kit that turns any computer into a fully-equipped Claude Code workstation in one command:
 
 ```bash
-npx claude-brain init
+npx ai-bootstrap init
 ```
 
 It walks you through an interactive setup wizard, asks permission to scan your projects, builds your AI profile, installs essential MCP servers, configures specialized skills + agents, and sets up cross-project memory — all backed up to GitHub.
@@ -38,7 +38,7 @@ No re-explanation. No re-configuration. Just continuity.
 └──────────────────────────────────────────┘
               ↑ auto-write
 ┌──────────────────────────────────────────┐
-│  Layer 3: ae-learning-keeper skill        │
+│  Layer 3: learning-keeper skill           │
 │  Auto-captures corrections, builds rules  │
 └──────────────────────────────────────────┘
 ```
@@ -51,6 +51,15 @@ No re-explanation. No re-configuration. Just continuity.
 - **~80 MCP servers** in 15 categories (auto-installed with bundle selection)
 - **Interactive setup wizard** — first-run permission gates, profile builder, project scanner
 
+## Locked Architectural Decisions (Mərhələ A son)
+
+1. **Project name**: `ai-bootstrap`
+2. **License**: MIT — fork, modify, distribute freely
+3. **Vertical specialists**: All auto-installed (legal, medical, finance, education, e-commerce, real-estate)
+4. **C-Level advisors**: All 10 auto-installed (CEO, CTO, CFO, CMO, COO, CRO, CHRO, CISO, GC, Founder-mode)
+5. **Memory storage**: Markdown files + git (simple, human-readable, portable)
+6. **Multilingual**: Universal `multilingual-copywriter` skill + language knowledge files (`languages/{az,ru,en,tr,es}.md`)
+
 ## License
 
 MIT — fork, modify, distribute. Community contributions welcome.
@@ -58,6 +67,7 @@ MIT — fork, modify, distribute. Community contributions welcome.
 ## Status
 
 See [docs/PROPOSAL.md](docs/PROPOSAL.md) for the complete research synthesis and roadmap.
+See [docs/DECISIONS.md](docs/DECISIONS.md) for the locked architectural decisions.
 
 ---
 
