@@ -1,0 +1,22 @@
+{
+  "name": "@ai-bootstrap/templates",
+  "version": "0.0.1",
+  "description": "Skill, agent, and knowledge templates for ai-bootstrap",
+  "type": "module",
+  "files": [
+    "skills/",
+    "agents/",
+    "knowledge/",
+    "presets/",
+    "hooks/"
+  ],
+  "scripts": {
+    "lint": "echo 'TODO: lint templates'",
+    "test": "echo 'TODO: validate templates'"
+  },
+  "author": "Emin Azəroğlu",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  }
+}
