@@ -76,6 +76,22 @@ const PRODUCTIVITY = [
   'knowledge-base-builder',
 ];
 
+const ADVANCED_ENG = [
+  'rag-architect',
+  'mcp-server-builder',
+  'ci-cd-builder',
+  'kubernetes-operator',
+  'incident-commander',
+];
+
+const C_LEVEL = [
+  'ceo-advisor',
+  'cto-advisor',
+  'cfo-advisor',
+  'cmo-advisor',
+  'founder-mode',
+];
+
 export const SKILL_BUNDLES: Record<string, string[]> = {
   foundation: [...FOUNDATION_CORE],
   developer: [
@@ -88,6 +104,8 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'simplify',
     'verify',
     'refactor',
+    ...ADVANCED_ENG,
+    'cto-advisor',
   ],
   marketer: [
     'learning-keeper',
@@ -115,7 +133,7 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     ...SOCIAL,
     ...COACHING,
     ...PRODUCTIVITY,
-    'business-coach',
+    ...C_LEVEL,
   ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe
   'full-stack': [
     ...FOUNDATION_CORE,
@@ -126,6 +144,8 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     ...GRAPHIC_DESIGN,
     ...COACHING,
     ...PRODUCTIVITY,
+    ...ADVANCED_ENG,
+    ...C_LEVEL,
   ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe
 };
 
