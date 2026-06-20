@@ -208,15 +208,31 @@ const ENGINEERING_AGENTS = [
   'devops-engineer',
   'backend-engineer',
   'frontend-engineer',
+  'data-engineer',
+  'ai-ml-engineer',
+  'stack-tester',
+  'db-migrator',
+  'qa-reviewer',
+];
+
+const CREATOR_AGENTS = [
+  'video-pipeline',
+  'publishing-orchestrator',
+];
+
+const BUSINESS_AGENTS = [
+  'launch-orchestrator',
+  'business-analyst',
+  'decision-recorder',
 ];
 
 export const AGENT_BUNDLES: Record<string, string[]> = {
   foundation: [...FOUNDATION_AGENTS],
   developer: [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
-  marketer: [...FOUNDATION_AGENTS],
-  creator: [...FOUNDATION_AGENTS],
-  founder: [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
-  'full-stack': [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
+  marketer: [...FOUNDATION_AGENTS, ...BUSINESS_AGENTS],
+  creator: [...FOUNDATION_AGENTS, ...CREATOR_AGENTS],
+  founder: [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS, ...BUSINESS_AGENTS],
+  'full-stack': [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS, ...CREATOR_AGENTS, ...BUSINESS_AGENTS],
 };
 
 export interface InstallPlan {
