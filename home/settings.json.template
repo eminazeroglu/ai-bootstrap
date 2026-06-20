@@ -1,0 +1,51 @@
+{
+  "$comment": "ai-bootstrap default settings template. Copied to ~/.claude/settings.json at install. Edit anytime.",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff)",
+      "Bash(git log *)",
+      "Bash(pnpm *)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(ls *)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(grep *)",
+      "Bash(find . *)",
+      "Read",
+      "Edit",
+      "Write"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(sudo *)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | sh)"
+    ],
+    "defaultMode": "default"
+  },
+  "model": "opus",
+  "alwaysThinkingEnabled": false,
+  "env": {
+    "AI_BOOTSTRAP_VERSION": "0.0.1"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"systemMessage\": \"Session complete. learning-keeper + journal-keeper triggered.\"}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "attribution": {
+    "commit": "🤖 Co-Authored-By: Claude (via ai-bootstrap)"
+  }
+}
