@@ -82,6 +82,38 @@ const ADVANCED_ENG = [
   'ci-cd-builder',
   'kubernetes-operator',
   'incident-commander',
+  'chaos-engineer',
+  'migration-architect',
+];
+
+const PRODUCT_UX_FULL = [
+  ...['product-manager', 'ux-researcher', 'landing-page-builder', 'accessibility-auditor'],
+  'experiment-designer',
+  'analytics-expert',
+  'ui-ux-pro-max',
+];
+
+const MARKETING_FULL = [
+  ...['seo-optimizer', 'aeo-specialist', 'copywriter-pro', 'email-sequence-builder', 'growth-strategist'],
+  'content-strategist',
+  'conversion-optimizer',
+  'paid-ads-strategist',
+];
+
+const SOCIAL_FULL = [
+  ...['instagram-expert', 'tiktok-expert', 'youtube-expert', 'linkedin-expert', 'social-strategist'],
+  'cross-platform-strategist',
+  'community-manager',
+];
+
+const MULTILINGUAL = [
+  'cultural-translator',
+  'multilingual-content',
+];
+
+const PRODUCTIVITY_FULL = [
+  ...['inbox-triage', 'meeting-notes', 'decision-maker', 'knowledge-base-builder'],
+  'process-mapper',
 ];
 
 const C_LEVEL = [
@@ -150,17 +182,18 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
   ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe
   'full-stack': [
     ...FOUNDATION_CORE,
-    ...PRODUCT_UX,
-    ...MARKETING,
-    ...SOCIAL,
+    ...PRODUCT_UX_FULL,
+    ...MARKETING_FULL,
+    ...SOCIAL_FULL,
     ...CREATOR_SUITE,
     ...GRAPHIC_DESIGN,
     ...COACHING,
-    ...PRODUCTIVITY,
+    ...PRODUCTIVITY_FULL,
     ...ADVANCED_ENG,
     ...C_LEVEL,
     ...VERTICAL,
-  ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe
+    ...MULTILINGUAL,
+  ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe (ALL 85 skills)
 };
 
 export const AGENT_BUNDLES: Record<string, string[]> = {
