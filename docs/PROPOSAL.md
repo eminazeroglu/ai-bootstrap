@@ -1,18 +1,20 @@
 ---
-name: claude-brain — full proposal
-description: Mərhələ A research synthesis — vizyon, arxitektur, presetlər, skill/agent/MCP kataloqları
-status: Mərhələ A tamamlandı (2026-06-19)
-last_updated: 2026-06-19
+name: ai-bootstrap — full proposal
+description: Mərhələ A + B sintez — vizyon, arxitektur, presetlər, skill/agent/MCP kataloqları, B-tətbiq nəticələri
+status: Mərhələ B (B-1 → B-5) tamamlandı — B-6 son commit, Mərhələ C növbəti
+last_updated: 2026-06-20
 ---
 
-# claude-brain — tam təklif
+# ai-bootstrap — tam təklif
+
+> **Adlandırma**: Bu sənəd əvvəl "claude-brain" deyirdi. **2026-06-19-da Emin tərəfdən `ai-bootstrap` adı locked**. Tarixdə clade-brain istinadı ola bilər (köhnə commit), lakin gələcək — ai-bootstrap.
 
 ## 🎯 Vizyon
 
 **Şəxsi AI infrastrukturu npm paketi.** Hər kəs yazır:
 
 ```bash
-npx claude-brain init
+npx ai-bootstrap init
 ```
 
 Və avtomatik interactive wizard:
@@ -404,9 +406,117 @@ User imtina edirsə → adaptiv davranır.
 | Skills | ~85 (10 tier) | ✅ catalog |
 | Agents | ~75 (10 tier) | ✅ catalog |
 | MCPs | ~80 (15 tier) | ✅ catalog |
-| YENI yaradılacaq | 20+ skill, 17+ agent | 🟡 Mərhələ B-də |
+| YENI yaradılacaq | 20+ skill, 17+ agent | 🟢 5 skill done (B-2) |
 | Sources | 35+ research links | ✅ cited |
 
 ---
 
-**Növbəti söhbət**: Mərhələ B-1 (repo skeleton) ilə başlayırıq.
+## 🟢 Mərhələ B Nəticələri (B-1 → B-5 done)
+
+### B-1: Monorepo skeleton ✅
+- Root `package.json` (workspaces config: cli, templates, mcps)
+- `pnpm-workspace.yaml`, `turbo.json`
+- 3 paket README + package.json
+- Commit: `13882ef`
+
+### B-2: 5 yeni skill ✅
+- `learning-keeper` (auto-capture corrections, mistakes, facts) — ~230 lines
+- `multilingual-copywriter` (universal copy + language knowledge files) — ~270 lines
+- `architect` (system design + multi-tenancy patterns) — ~320 lines
+- `doc-writer` (numbered docs 00-27 pattern) — ~330 lines
+- `test-writer` (Vitest/Jest/Playwright universal) — ~310 lines
+- `knowledge/languages/az.md` (AZ grammar + Ogilvy + forbidden slang)
+- Commit: `dd23d20`
+
+### B-3: home/ knowledge skeleton ✅
+- `home/CLAUDE.md` (8 foundation rules)
+- `home/knowledge/user-profile.md` (template)
+- `home/knowledge/mistakes-log.md` (3 seed entries from real corrections)
+- `home/knowledge/verified-facts.md` (6 researched facts with sources)
+- `home/knowledge/user-rules.md` (6 user-taught rules from Eminin sözlərindən)
+- `home/knowledge/patterns.md` (2 detected patterns)
+- `home/knowledge/handoff-log.md` (1 session snapshot)
+- `home/knowledge/languages/az.md` (copy of AZ rules)
+- `home/knowledge/projects/README.md` (manifest format)
+- `home/settings.json.template` (permissions, hooks, attribution)
+- Commit: `3e86d91`
+
+### B-4: install.sh + uninstall.sh ✅
+- `install.sh` — backup + symlink + skill auto-install
+- `uninstall.sh` — confirm + backup + restore
+- Bash strict mode, color output, AZ messages
+- Commit: `1b0f0aa`
+
+### B-5: Local syntax + mock test ✅
+- `bash -n install.sh` → OK
+- `bash -n uninstall.sh` → OK
+- Mock HOME test: 5 skills installed via symlink, all paths correct
+- Real `~/.claude/` NOT touched (responsible testing)
+
+### B-6: PROPOSAL.md update + final commit 🟢
+- Mərhələ B status documentation (this section)
+- Ready for Mərhələ C (public launch)
+
+---
+
+## 🎯 Mərhələ C Plan (gələcək söhbət)
+
+### C-1: GitHub public repo
+- Create `github.com/eminazeroglu/ai-bootstrap`
+- Push local commits
+- Configure topics, description, README badges
+
+### C-2: CLI implementation (real wizard)
+- Currently `bin/init.js` is placeholder
+- Implement actual wizard with @inquirer/prompts:
+  - Step 1: profile builder
+  - Step 2: project scanner (vergullə folder list)
+  - Step 3: bundle selection (Developer/Marketer/Creator/Founder/Full Stack)
+  - Step 4: MCP credential collection
+  - Step 5: ~/.claude/ configuration
+  - Step 6: optional GitHub backup setup
+
+### C-3: Build remaining skills (~80 more)
+- Tier 2-10 skills (~80 skills not yet written)
+- Prioritize: SEO suite (18), Marketing (12), Social per-platform (8)
+
+### C-4: Build agents (~75 agents)
+- All 75 universal agents
+- Project-spesifik adaptasiyalar
+
+### C-5: MCP catalog implementation
+- `catalog.json` with all 80 MCPs metadata
+- Installer per MCP (credential collection, test connection)
+
+### C-6: npm publish
+- `npm publish --access public`
+- Verify `npx ai-bootstrap init` works globally
+
+### C-7: Documentation site (Mintlify or Astro)
+- `ai-bootstrap.dev` (yaxud sənin domeində)
+- Full guides, tutorials, multilingual
+
+### C-8: Launch
+- ProductHunt
+- HackerNews
+- Twitter / X
+- AZ creator community (telegram channels)
+
+---
+
+## 📊 Cari statistika (2026-06-20)
+
+| Metric | Saytı |
+|---|---|
+| Commits | 8 (3b0f00c → bu commit) |
+| Faylar | 27+ |
+| Skill yarandı | 5/85 (5.9%) |
+| Knowledge faylları | 10 (CLAUDE.md + 8 knowledge + 1 settings) |
+| Lines of code/markdown | ~3000+ |
+| Status | Mərhələ B done, Mərhələ C waiting |
+
+---
+
+**Növbəti söhbət**: Mərhələ C-1 (GitHub repo) yaxud C-2 (CLI implementation) ilə davam edirik. Hansı vacibdir?
+
+**Tövsiyəm — C-2 əvvəl**: working wizard quraq, sonra C-3-4-5 boyunca skill/agent/MCP doldur. C-1 (GitHub) Mərhələ C sonunda — public-ə getməyə hazır olduğumuzda.
