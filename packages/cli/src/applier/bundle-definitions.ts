@@ -8,25 +8,29 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'architect',
     'doc-writer',
     'test-writer',
+    'code-reviewer',
+    'security-auditor',
   ],
   developer: [
     'learning-keeper',
     'architect',
     'doc-writer',
     'test-writer',
-    // C-5+: code-reviewer, simplify, verify, security-review, refactor, debugger
+    'code-reviewer',
+    'security-auditor',
+    // C-6+: simplify, verify, refactor, debugger, performance-profiler
   ],
   marketer: [
     'learning-keeper',
     'multilingual-copywriter',
     'doc-writer',
-    // C-5+: seo-optimizer, aeo-specialist, copywriter-pro, email-sequence-builder, etc.
+    // C-6+: seo-optimizer, aeo-specialist, copywriter-pro, email-sequence-builder, etc.
   ],
   creator: [
     'learning-keeper',
     'multilingual-copywriter',
     'doc-writer',
-    // C-5+: showrunner, screenwriter, character-designer, image-prompt-engineer, etc.
+    // C-6+: showrunner, screenwriter, character-designer, image-prompt-engineer, etc.
   ],
   founder: [
     'learning-keeper',
@@ -34,7 +38,9 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'architect',
     'doc-writer',
     'test-writer',
-    // C-5+: business-coach, growth-coach, ui-ux-pro-max, etc.
+    'code-reviewer',
+    'security-auditor',
+    // C-6+: business-coach, growth-coach, ui-ux-pro-max, etc.
   ],
   'full-stack': [
     'learning-keeper',
@@ -42,34 +48,35 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'architect',
     'doc-writer',
     'test-writer',
-    // C-5+: ALL skills (~85)
+    'code-reviewer',
+    'security-auditor',
+    // C-6+: ALL skills (~85)
   ],
 };
 
 export const AGENT_BUNDLES: Record<string, string[]> = {
   foundation: [
-    // Built-in: Explore, Plan, general-purpose (no install needed)
-    // C-5+: code-reviewer, researcher
+    'code-reviewer',
+    // C-6+: researcher (deep-research as agent)
   ],
   developer: [
-    // C-5+: code-explorer, code-architect, stack-tester, db-migrator,
-    //       security-auditor, performance-profiler, refactor-planner, debugger,
-    //       backend-engineer, frontend-engineer, qa-reviewer
+    'code-reviewer',
+    // C-6+: code-explorer, code-architect, stack-tester, db-migrator,
+    //       security-auditor, performance-profiler, refactor-planner, debugger
   ],
   marketer: [
-    // C-5+: 18 SEO sub-agents, content-marketer, social-media-manager,
-    //       email-marketer, growth-hacker, paid-ads-strategist
+    // C-6+: 18 SEO sub-agents, content-marketer, social-media-manager, etc.
   ],
   creator: [
-    // C-5+: video-pipeline, storyboard-orchestrator, publishing-orchestrator,
-    //       instagram-orchestrator, tiktok-orchestrator, youtube-orchestrator
+    // C-6+: video-pipeline, storyboard-orchestrator, publishing-orchestrator
   ],
   founder: [
-    // C-5+: All C-Level advisors (10), business-analyst, growth-strategist,
-    //       launch-orchestrator, decision-recorder
+    'code-reviewer',
+    // C-6+: All C-Level advisors (10), business-analyst, etc.
   ],
   'full-stack': [
-    // C-5+: ALL ~75 agents
+    'code-reviewer',
+    // C-6+: ALL ~75 agents
   ],
 };
 
