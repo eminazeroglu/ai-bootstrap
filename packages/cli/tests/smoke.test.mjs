@@ -139,26 +139,39 @@ describe('settings-writer', () => {
   assert('AI_BOOTSTRAP_PRIMARY_LANG set', settings.env.AI_BOOTSTRAP_PRIMARY_LANG === 'az');
 });
 
-// ════ Test 4: mcp-config ════
+// ════ Test 4: mcp-config (real Claude Code mcpServers config) ════
 describe('mcp-config', () => {
   const mcps = ['github', 'postgres', 'notion', 'brave-search'];
-  const path = writeMcpConfig(mcps);
+  const result = writeMcpConfig(mcps);
 
-  assert('returns path', typeof path === 'string');
-  assert('file exists', existsSync(path));
+  assert('returns result object', typeof result === 'object');
+  assert('claudeJsonPath is set', typeof result.claudeJsonPath === 'string');
+  assert('trackingPath is set', typeof result.trackingPath === 'string');
+  assert('claudeJson written', existsSync(result.claudeJsonPath));
+  assert('tracking written', existsSync(result.trackingPath));
+  assert('installed 4', result.installed.length === 4);
+  assert('skipped 0', result.skipped.length === 0);
+  assert('no missing from catalog', result.missingFromCatalog.length === 0);
 
-  const config = JSON.parse(readFileSync(path, 'utf-8'));
-  assert('version is 1.0', config.version === '1.0');
-  assert('has 4 servers', config.servers.length === 4);
-  assert('github needs credential', config.servers.find((s) => s.id === 'github')?.needs_credential === true);
-  assert('brave-search does NOT need credential', config.servers.find((s) => s.id === 'brave-search')?.needs_credential === false);
+  const claudeJson = JSON.parse(readFileSync(result.claudeJsonPath, 'utf-8'));
+  assert('claudeJson has mcpServers', typeof claudeJson.mcpServers === 'object');
+  assert('github mcpServer has command', claudeJson.mcpServers.github?.command === 'npx');
+  assert('github mcpServer has args', Array.isArray(claudeJson.mcpServers.github?.args));
+  assert('github mcpServer has env with placeholder', claudeJson.mcpServers.github?.env?.GITHUB_PERSONAL_ACCESS_TOKEN === '${GITHUB_PERSONAL_ACCESS_TOKEN}');
+  assert('brave-search mcpServer no env required (only API key)', claudeJson.mcpServers['brave-search']?.command === 'npx');
 
-  // Test merge — running again with overlap
-  const path2 = writeMcpConfig(['github', 'slack']);
-  const config2 = JSON.parse(readFileSync(path2, 'utf-8'));
-  assert('merge: no duplicate github', config2.servers.filter((s) => s.id === 'github').length === 1);
-  assert('merge: slack added', config2.servers.find((s) => s.id === 'slack') !== undefined);
-  assert('merge: total 5 servers', config2.servers.length === 5);
+  assert('credentialsRequired tracks github', result.credentialsRequired.find((c) => c.id === 'github') !== undefined);
+  assert('brave-search credentials tracked (BRAVE_API_KEY)', result.credentialsRequired.find((c) => c.id === 'brave-search')?.keys.includes('BRAVE_API_KEY') === true);
+
+  // Merge run
+  const result2 = writeMcpConfig(['github', 'slack', 'unknown-mcp-xxx']);
+  assert('merge: github skipped (already)', result2.skipped.includes('github'));
+  assert('merge: slack installed', result2.installed.includes('slack'));
+  assert('merge: unknown reported missing', result2.missingFromCatalog.includes('unknown-mcp-xxx'));
+
+  const claudeJson2 = JSON.parse(readFileSync(result2.claudeJsonPath, 'utf-8'));
+  assert('merge: slack now in mcpServers', claudeJson2.mcpServers.slack?.command === 'npx');
+  assert('merge: total 5 servers in claudeJson', Object.keys(claudeJson2.mcpServers).length === 5);
 });
 
 // ════ Test 5: bundle resolution ════

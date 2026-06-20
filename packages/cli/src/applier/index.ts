@@ -76,12 +76,23 @@ export async function applyState(state: WizardState): Promise<ApplyResult> {
   if (mcps && mcps.length > 0) {
     const spinner = ora(`${mcps.length} MCP konfiqurasiyası yazılır...`).start();
     try {
-      const path = writeMcpConfig(mcps);
-      result.filesWritten.push(path);
-      spinner.succeed(`MCP config: ${chalk.dim(path)}`);
-      console.log(
-        chalk.dim(`   Credential lazım olan MCP-lər üçün: ${chalk.cyan('ai-bootstrap mcp configure <id>')}`),
+      const mcpResult = writeMcpConfig(mcps);
+      result.filesWritten.push(mcpResult.claudeJsonPath, mcpResult.trackingPath);
+      spinner.succeed(
+        `MCP config: ${chalk.green(mcpResult.installed.length)} yeni, ${chalk.dim(mcpResult.skipped.length + ' artıq var')}`,
       );
+      if (mcpResult.missingFromCatalog.length > 0) {
+        console.log(
+          chalk.yellow(`   ⚠ Kataloqda yoxdur: ${mcpResult.missingFromCatalog.join(', ')}`),
+        );
+      }
+      if (mcpResult.credentialsRequired.length > 0) {
+        console.log(
+          chalk.dim(
+            `   ${mcpResult.credentialsRequired.length} MCP credential gözləyir. İçin: ${chalk.cyan('ai-bootstrap mcp credentials')}`,
+          ),
+        );
+      }
     } catch (err) {
       spinner.fail('MCP config yazılarkən xəta');
       result.errors.push(`mcps: ${err}`);
