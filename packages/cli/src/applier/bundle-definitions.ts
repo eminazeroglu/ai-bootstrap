@@ -10,6 +10,9 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'test-writer',
     'code-reviewer',
     'security-auditor',
+    'simplify',
+    'verify',
+    'refactor',
   ],
   developer: [
     'learning-keeper',
@@ -18,7 +21,10 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'test-writer',
     'code-reviewer',
     'security-auditor',
-    // C-6+: simplify, verify, refactor, debugger, performance-profiler
+    'simplify',
+    'verify',
+    'refactor',
+    // C-7+: debugger, performance-profiler, devops-engineer
   ],
   marketer: [
     'learning-keeper',
@@ -40,7 +46,10 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'test-writer',
     'code-reviewer',
     'security-auditor',
-    // C-6+: business-coach, growth-coach, ui-ux-pro-max, etc.
+    'simplify',
+    'verify',
+    'refactor',
+    // C-7+: business-coach, growth-coach, ui-ux-pro-max, etc.
   ],
   'full-stack': [
     'learning-keeper',
@@ -50,7 +59,10 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'test-writer',
     'code-reviewer',
     'security-auditor',
-    // C-6+: ALL skills (~85)
+    'simplify',
+    'verify',
+    'refactor',
+    // C-7+: ALL skills (~85)
   ],
 };
 
