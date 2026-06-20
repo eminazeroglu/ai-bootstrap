@@ -172,7 +172,8 @@ describe('bundle-definitions', () => {
   assert('founder includes journal-keeper', SKILL_BUNDLES.founder.includes('journal-keeper'));
   assert('founder includes decision-maker', SKILL_BUNDLES.founder.includes('decision-maker'));
   assert('marketer includes seo-optimizer', SKILL_BUNDLES.marketer.includes('seo-optimizer'));
-  assert('foundation has 1 agent', AGENT_BUNDLES.foundation.length === 1);
+  assert('foundation has 2 agents (C-13)', AGENT_BUNDLES.foundation.length === 2);
+  assert('developer has 11 agents (C-13)', AGENT_BUNDLES.developer.length === 11);
 
   const plan = resolvePlan('founder', 'founder');
   assert('founder plan has 30+ skills', plan.skills.length >= 30);
