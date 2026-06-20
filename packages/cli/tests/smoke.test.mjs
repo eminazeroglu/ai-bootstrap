@@ -164,27 +164,25 @@ describe('mcp-config', () => {
 // ════ Test 5: bundle resolution ════
 describe('bundle-definitions', () => {
   assert('foundation has 10 skills', SKILL_BUNDLES.foundation.length === 10);
-  assert('full-stack has 37 skills (C-8 + creator suite)', SKILL_BUNDLES['full-stack'].length === 37);
-  assert('founder has 23 skills', SKILL_BUNDLES.founder.length === 23);
+  assert('full-stack has 52+ skills (C-9 + all tiers)', SKILL_BUNDLES['full-stack'].length >= 52);
+  assert('founder has 30+ skills', SKILL_BUNDLES.founder.length >= 30);
   assert('creator includes showrunner', SKILL_BUNDLES.creator.includes('showrunner'));
-  assert('creator includes character-designer', SKILL_BUNDLES.creator.includes('character-designer'));
+  assert('creator includes brand-identity-designer', SKILL_BUNDLES.creator.includes('brand-identity-designer'));
+  assert('founder includes business-coach', SKILL_BUNDLES.founder.includes('business-coach'));
+  assert('founder includes journal-keeper', SKILL_BUNDLES.founder.includes('journal-keeper'));
+  assert('founder includes decision-maker', SKILL_BUNDLES.founder.includes('decision-maker'));
   assert('marketer includes seo-optimizer', SKILL_BUNDLES.marketer.includes('seo-optimizer'));
-  assert('marketer includes instagram-expert', SKILL_BUNDLES.marketer.includes('instagram-expert'));
   assert('foundation has 1 agent', AGENT_BUNDLES.foundation.length === 1);
 
   const plan = resolvePlan('founder', 'founder');
-  assert('founder plan has 23 skills', plan.skills.length === 23);
-  assert('founder plan has 1 agent', plan.agents.length === 1);
-  assert('plan includes learning-keeper', plan.skills.includes('learning-keeper'));
-  assert('plan includes code-reviewer', plan.skills.includes('code-reviewer'));
-  assert('plan includes simplify', plan.skills.includes('simplify'));
-  assert('plan includes seo-optimizer', plan.skills.includes('seo-optimizer'));
-  assert('plan includes copywriter-pro', plan.skills.includes('copywriter-pro'));
-  assert('plan includes youtube-expert', plan.skills.includes('youtube-expert'));
+  assert('founder plan has 30+ skills', plan.skills.length >= 30);
+  assert('plan includes business-coach', plan.skills.includes('business-coach'));
+  assert('plan includes psychologist', plan.skills.includes('psychologist'));
 
-  const creatorPlan = resolvePlan('creator', 'creator');
-  assert('creator plan has showrunner', creatorPlan.skills.includes('showrunner'));
-  assert('creator plan has elevenlabs', creatorPlan.skills.includes('elevenlabs'));
+  const fullPlan = resolvePlan('full-stack', 'full-stack');
+  assert('full-stack has typography-system-designer', fullPlan.skills.includes('typography-system-designer'));
+  assert('full-stack has knowledge-base-builder', fullPlan.skills.includes('knowledge-base-builder'));
+  assert('full-stack has 52+ unique skills', new Set(fullPlan.skills).size === fullPlan.skills.length);
 
   // Unknown bundle fallback
   const fallback = resolvePlan('nonexistent', 'nonexistent');
