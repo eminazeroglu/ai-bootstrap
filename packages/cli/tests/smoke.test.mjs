@@ -164,19 +164,26 @@ describe('mcp-config', () => {
 // ════ Test 5: bundle resolution ════
 describe('bundle-definitions', () => {
   assert('foundation has 10 skills', SKILL_BUNDLES.foundation.length === 10);
-  assert('full-stack has 10 skills', SKILL_BUNDLES['full-stack'].length === 10);
+  assert('full-stack has 23 skills (C-7 expanded)', SKILL_BUNDLES['full-stack'].length === 23);
+  assert('founder has 23 skills (C-7 expanded)', SKILL_BUNDLES.founder.length === 23);
+  assert('marketer includes seo-optimizer', SKILL_BUNDLES.marketer.includes('seo-optimizer'));
+  assert('marketer includes instagram-expert', SKILL_BUNDLES.marketer.includes('instagram-expert'));
+  assert('creator includes tiktok-expert', SKILL_BUNDLES.creator.includes('tiktok-expert'));
   assert('foundation has 1 agent', AGENT_BUNDLES.foundation.length === 1);
 
   const plan = resolvePlan('founder', 'founder');
-  assert('founder plan has 10 skills', plan.skills.length === 10);
+  assert('founder plan has 23 skills', plan.skills.length === 23);
   assert('founder plan has 1 agent', plan.agents.length === 1);
   assert('plan includes learning-keeper', plan.skills.includes('learning-keeper'));
   assert('plan includes code-reviewer', plan.skills.includes('code-reviewer'));
   assert('plan includes simplify', plan.skills.includes('simplify'));
+  assert('plan includes seo-optimizer', plan.skills.includes('seo-optimizer'));
+  assert('plan includes copywriter-pro', plan.skills.includes('copywriter-pro'));
+  assert('plan includes youtube-expert', plan.skills.includes('youtube-expert'));
 
   // Unknown bundle fallback
   const fallback = resolvePlan('nonexistent', 'nonexistent');
-  assert('unknown bundle falls back to foundation', fallback.skills.length === 10);
+  assert('unknown bundle falls back to foundation (10 skills)', fallback.skills.length === 10);
 });
 
 // ════ Test 6: skills-installer (real symlink creation) ════
