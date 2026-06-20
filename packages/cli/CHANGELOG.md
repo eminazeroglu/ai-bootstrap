@@ -5,6 +5,75 @@ All notable changes to `@eminazeroglu/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-06-20
+
+Second release — closes the "post-launch roadmap" gaps from v0.1.0.
+
+### Added
+
+- **MCP catalog expanded 41 → 63 servers** (all verified against official docs or
+  npm/GitHub as of 2026-06-20; no fabricated packages):
+  - Atlassian (Jira + Confluence) via `uvx mcp-atlassian` (sooperset)
+  - Twilio via `@twilio-alpha/mcp` (official alpha)
+  - SendGrid via `sendgrid-mcp` (Garoth)
+  - Trello via `@delorenj/mcp-server-trello`
+  - Asana via `mcp-server-asana`
+  - ClickUp via `clickup-mcp-server`
+  - Spotify via `spotify-mcp-server` (marcelmarais)
+  - YouTube Transcript via `@sinco-lab/mcp-youtube-transcript`
+  - arXiv via `uvx mcp-simple-arxiv`
+  - Kubernetes via `docker ghcr.io/alexei-led/k8s-mcp-server`
+  - Browserbase via `@browserbasehq/mcp`
+  - Apify via `@apify/actors-mcp-server` (4500+ scrapers)
+  - Time via `uvx mcp-server-time` (no creds, timezone utils)
+  - **Google Workspace official remote MCPs** (HTTP transport + OAuth):
+    Gmail, Google Drive, Google Calendar, Google Chat
+- **HTTP transport support** in catalog schema:
+  - `transport: 'stdio' | 'http'`, `serverUrl`, `oauth: { clientIdEnv, clientSecretEnv }`
+  - `writeMcpConfig` writes either stdio command/args/env OR serverUrl/oauth JSON
+- **New CLI command: `ai-bootstrap backup <sub>`**
+  - `backup init` — git init + remote + initial push (uses system git auth)
+  - `backup sync` — stage + commit + push current state
+  - `backup pull` — clone or pull from remote (restore on new machine)
+  - `backup status` — show remote, last sync, last commit
+  - Auto-generates `.gitignore` excluding mcp-tracking.json (no creds leaked)
+- **New CLI command: `ai-bootstrap telemetry <sub>`**
+  - `telemetry on/off/status` — strict opt-in (default off)
+  - Writes `~/.claude/telemetry.json` with random install UUID
+  - Endpoint configured via `AI_BOOTSTRAP_TELEMETRY_URL` env (no default —
+    no data goes anywhere unless user sets a collector)
+  - Collects: version, Node, platform, bundle choice, MCP IDs, event name
+  - Never collects: profile, project names/paths, knowledge files, credentials
+  - 2-second timeout, silent failure (never breaks CLI)
+- **E2E test suite** (`tests/e2e.test.mjs`): 43 tests covering compiled CLI
+  via subprocess — --version, --help, doctor on empty HOME, mcp list/installed,
+  update with no state, telemetry status/on/off, backup status, error handling
+- **New category**: `research` for arxiv, youtube-transcript
+
+### Changed
+
+- `package.json scripts`:
+  - `test` = smoke + e2e (was: smoke only)
+  - `test:smoke` and `test:e2e` for individual runs
+  - `prepublishOnly` now runs e2e too before publish
+- Help text reorganized to show new subcommands
+
+### Quality
+
+- **124 tests passing** (was 81): 81 smoke + 43 e2e
+- All MCP catalog entries include `source:` field attributing the maintainer
+  (official vs community) for transparency
+- HTTP transport entries clearly marked with `transport: 'http'`
+
+### Known limitations (still post-launch)
+
+- Documentation site (ai-bootstrap.dev) — separate marketing project
+- Some MCPs depend on npm packages that may rename; catalog will need refresh
+- Telemetry collector backend is user-provided (intentional — privacy-first)
+- ProductHunt / HackerNews launch — manual
+
+[0.2.0]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.2.0
+
 ## [0.1.0] — 2026-06-20
 
 First public release on npm.

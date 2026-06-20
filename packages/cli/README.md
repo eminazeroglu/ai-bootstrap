@@ -24,7 +24,7 @@ Interactive 6-step setup:
    - `creator` — 26 skills, 13 agents (video, music, storyboard)
    - `founder` — 35 skills, 38 agents (C-Level + business + product)
    - `full-stack` — 52+ skills, 75+ agents (everything)
-4. **MCPs** — pick from 41 Model Context Protocol servers (github, postgres, supabase, notion, slack, …)
+4. **MCPs** — pick from 63 Model Context Protocol servers (github, postgres, supabase, notion, slack, atlassian, gmail, twilio, sendgrid, spotify, kubernetes, …)
 5. **Memory** — markdown + git knowledge architecture (25-50× faster than vector DB at <100K entries)
 6. **GitHub** — optional `~/.claude/` backup repo
 
@@ -34,7 +34,7 @@ Result: a Claude Code workstation that remembers everything across projects, mac
 
 - **85+ production skills** spanning Foundation, Product, Marketing, Social, Creator, Graphic Design, Coaching, Productivity, Engineering, C-Level Advisory, Verticals
 - **75+ specialized agents** including SEO suite (18), C-Level mirrors (10), Engineering (14), Social orchestrators (5), Marketing (6), Vertical specialists (8), Product team (5)
-- **41 MCP servers** in catalog with real install commands + credential helpers
+- **63 MCP servers** in catalog with real install commands + OAuth/credential helpers (stdio + HTTP transports)
 - **Universal CLAUDE.md** with 8 foundation rules (docs-first, learning-keeper auto-promotion, dürüst dialoq, etc.)
 - **Knowledge skeleton**: `user-profile`, `mistakes-log`, `verified-facts`, `user-rules`, `patterns`, `handoff-log`, language guides, projects manifest
 - **Interactive permission gates** via Claude Code's settings.json
@@ -42,12 +42,30 @@ Result: a Claude Code workstation that remembers everything across projects, mac
 ## Commands
 
 ```bash
-ai-bootstrap                  # Interactive 6-step wizard (default)
+# Default
+ai-bootstrap                  # Interactive 6-step wizard
+
+# Sync + diagnose
 ai-bootstrap update           # Re-sync skills + agents from latest bundle
 ai-bootstrap doctor           # Diagnose install health (symlinks, MCPs, creds)
-ai-bootstrap mcp list         # List all 41 MCP servers available
+
+# MCP management
+ai-bootstrap mcp list         # List all 63 MCP servers available
 ai-bootstrap mcp installed    # List MCPs configured on this machine
 ai-bootstrap mcp credentials  # Interactively fill MCP credentials
+
+# Git backup of ~/.claude/
+ai-bootstrap backup init      # Initialize: git init + remote + first push
+ai-bootstrap backup sync      # Stage + commit + push current state
+ai-bootstrap backup pull      # Restore on a new machine
+ai-bootstrap backup status    # Show remote + last sync
+
+# Telemetry (opt-in, default OFF)
+ai-bootstrap telemetry status # Show current setting
+ai-bootstrap telemetry on     # Opt in (anonymous: version, bundles, MCP IDs)
+ai-bootstrap telemetry off    # Opt out
+
+# Meta
 ai-bootstrap --version
 ai-bootstrap --help
 ```
@@ -104,7 +122,7 @@ cd ai-bootstrap
 
 pnpm install                   # install monorepo deps
 pnpm --filter @eminazeroglu/ai-bootstrap build
-pnpm --filter @eminazeroglu/ai-bootstrap test    # runs 81 smoke tests
+pnpm --filter @eminazeroglu/ai-bootstrap test    # runs 124 tests (81 smoke + 43 e2e)
 
 # Run locally without npx
 node packages/cli/bin/init.js

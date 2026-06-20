@@ -1,6 +1,6 @@
 {
   "name": "@eminazeroglu/ai-bootstrap",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Personal AI infrastructure bootstrap for Claude Code — interactive setup wizard with skills, agents, MCPs, and cross-project memory",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,10 +20,12 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "prepack": "node scripts/copy-templates.mjs",
-    "prepublishOnly": "tsc && node scripts/copy-templates.mjs && node tests/smoke.test.mjs",
+    "prepublishOnly": "tsc && node scripts/copy-templates.mjs && node tests/smoke.test.mjs && node tests/e2e.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'TODO: eslint'",
-    "test": "tsc && node tests/smoke.test.mjs",
+    "test": "tsc && node tests/smoke.test.mjs && node tests/e2e.test.mjs",
+    "test:smoke": "tsc && node tests/smoke.test.mjs",
+    "test:e2e": "tsc && node tests/e2e.test.mjs",
     "pack:dry": "npm pack --dry-run",
     "copy:templates": "node scripts/copy-templates.mjs"
   },

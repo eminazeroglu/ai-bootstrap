@@ -1,17 +1,36 @@
 // MCP catalog — real install commands for each MCP server
-// Each entry has: package, command, args, env (credential placeholders)
+// Each entry is either:
+//   - local (transport: 'stdio'): runs a command (npx, uvx, docker, etc.)
+//   - remote (transport: 'http'): connects to a serverUrl via HTTP/SSE
+//
+// All package names, command formats, and serverUrls verified against
+// official docs or npm/GitHub registries as of 2026-06-20.
 // Reference: https://modelcontextprotocol.io/
+
+export type McpCategory =
+  | 'dev' | 'data' | 'social' | 'creator' | 'productivity'
+  | 'ai' | 'business' | 'analytics' | 'research';
 
 export interface McpCatalogEntry {
   id: string;
   name: string;
-  category: 'dev' | 'data' | 'social' | 'creator' | 'productivity' | 'ai' | 'business' | 'analytics';
+  category: McpCategory;
   description: string;
-  command: string;
-  args: string[];
-  env: Record<string, string>;
+  /** stdio = local subprocess (default). http = remote URL with optional OAuth. */
+  transport?: 'stdio' | 'http';
+  /** Local: command + args + env. Required when transport='stdio'. */
+  command?: string;
+  args?: string[];
+  env?: Record<string, string>;
+  /** Remote: serverUrl. Required when transport='http'. */
+  serverUrl?: string;
+  /** Remote OAuth (Google Workspace-style servers). */
+  oauth?: { clientIdEnv: string; clientSecretEnv: string };
+  /** Environment variables the user must supply. */
   credentialKeys: string[];
   credentialHelp?: string;
+  /** Attribution: official vendor / community maintainer. */
+  source?: string;
 }
 
 export const MCP_CATALOG: Record<string, McpCatalogEntry> = {
@@ -527,6 +546,253 @@ export const MCP_CATALOG: Record<string, McpCatalogEntry> = {
     args: ['-y', 'salesforce-mcp'],
     env: { SF_USERNAME: '${SF_USERNAME}', SF_PASSWORD: '${SF_PASSWORD}', SF_SECURITY_TOKEN: '${SF_SECURITY_TOKEN}' },
     credentialKeys: ['SF_USERNAME', 'SF_PASSWORD', 'SF_SECURITY_TOKEN'],
+  },
+
+  // ════ Atlassian (Jira + Confluence) ════
+  // Verified: github.com/sooperset/mcp-atlassian (Python, runnable via uvx)
+  atlassian: {
+    id: 'atlassian',
+    name: 'Atlassian (Jira + Confluence)',
+    category: 'productivity',
+    description: 'Jira issues + Confluence pages + sprints + boards (Cloud + Server)',
+    command: 'uvx',
+    args: ['mcp-atlassian'],
+    env: {
+      CONFLUENCE_URL: '${CONFLUENCE_URL}',
+      CONFLUENCE_USERNAME: '${CONFLUENCE_USERNAME}',
+      CONFLUENCE_API_TOKEN: '${CONFLUENCE_API_TOKEN}',
+      JIRA_URL: '${JIRA_URL}',
+      JIRA_USERNAME: '${JIRA_USERNAME}',
+      JIRA_API_TOKEN: '${JIRA_API_TOKEN}',
+    },
+    credentialKeys: ['CONFLUENCE_URL', 'CONFLUENCE_USERNAME', 'CONFLUENCE_API_TOKEN', 'JIRA_URL', 'JIRA_USERNAME', 'JIRA_API_TOKEN'],
+    credentialHelp: 'Create API tokens at https://id.atlassian.com/manage-profile/security/api-tokens',
+    source: 'community: sooperset/mcp-atlassian',
+  },
+
+  // ════ Communication ════
+  // Verified: npmjs.com/package/@twilio-alpha/mcp (Twilio official alpha)
+  twilio: {
+    id: 'twilio',
+    name: 'Twilio',
+    category: 'business',
+    description: 'Twilio SMS + voice + WhatsApp + verify (all Twilio APIs)',
+    command: 'npx',
+    args: ['-y', '@twilio-alpha/mcp', '${TWILIO_ACCOUNT_SID}/${TWILIO_API_KEY}:${TWILIO_API_SECRET}'],
+    env: {},
+    credentialKeys: ['TWILIO_ACCOUNT_SID', 'TWILIO_API_KEY', 'TWILIO_API_SECRET'],
+    credentialHelp: 'Create API key at https://console.twilio.com/us1/account/keys-credentials/api-keys',
+    source: 'official: Twilio (alpha)',
+  },
+
+  // Verified: github.com/Garoth/sendgrid-mcp
+  sendgrid: {
+    id: 'sendgrid',
+    name: 'SendGrid',
+    category: 'business',
+    description: 'SendGrid email marketing + transactional + lists + templates',
+    command: 'npx',
+    args: ['-y', 'sendgrid-mcp'],
+    env: { SENDGRID_API_KEY: '${SENDGRID_API_KEY}' },
+    credentialKeys: ['SENDGRID_API_KEY'],
+    credentialHelp: 'Create at https://app.sendgrid.com/settings/api_keys',
+    source: 'community: Garoth/sendgrid-mcp',
+  },
+
+  // ════ Project Management ════
+  // Verified: npmjs.com/package/@delorenj/mcp-server-trello
+  trello: {
+    id: 'trello',
+    name: 'Trello',
+    category: 'productivity',
+    description: 'Trello boards + lists + cards + members',
+    command: 'npx',
+    args: ['-y', '@delorenj/mcp-server-trello'],
+    env: { TRELLO_API_KEY: '${TRELLO_API_KEY}', TRELLO_TOKEN: '${TRELLO_TOKEN}' },
+    credentialKeys: ['TRELLO_API_KEY', 'TRELLO_TOKEN'],
+    credentialHelp: 'Get key + token at https://trello.com/power-ups/admin',
+    source: 'community: @delorenj/mcp-server-trello',
+  },
+
+  asana: {
+    id: 'asana',
+    name: 'Asana',
+    category: 'productivity',
+    description: 'Asana projects + tasks + assignees',
+    command: 'npx',
+    args: ['-y', 'mcp-server-asana'],
+    env: { ASANA_ACCESS_TOKEN: '${ASANA_ACCESS_TOKEN}' },
+    credentialKeys: ['ASANA_ACCESS_TOKEN'],
+    credentialHelp: 'Create at https://app.asana.com/0/my-apps',
+    source: 'community: mcp-server-asana',
+  },
+
+  clickup: {
+    id: 'clickup',
+    name: 'ClickUp',
+    category: 'productivity',
+    description: 'ClickUp spaces + lists + tasks',
+    command: 'npx',
+    args: ['-y', 'clickup-mcp-server'],
+    env: { CLICKUP_API_KEY: '${CLICKUP_API_KEY}', CLICKUP_TEAM_ID: '${CLICKUP_TEAM_ID}' },
+    credentialKeys: ['CLICKUP_API_KEY', 'CLICKUP_TEAM_ID'],
+    credentialHelp: 'Create at https://app.clickup.com/settings/apps',
+    source: 'community: clickup-mcp-server',
+  },
+
+  // ════ Media + Entertainment ════
+  // Verified: github.com/marcelmarais/spotify-mcp-server
+  spotify: {
+    id: 'spotify',
+    name: 'Spotify',
+    category: 'creator',
+    description: 'Spotify playback + search + playlists + library',
+    command: 'npx',
+    args: ['-y', 'spotify-mcp-server'],
+    env: { SPOTIFY_CLIENT_ID: '${SPOTIFY_CLIENT_ID}', SPOTIFY_CLIENT_SECRET: '${SPOTIFY_CLIENT_SECRET}' },
+    credentialKeys: ['SPOTIFY_CLIENT_ID', 'SPOTIFY_CLIENT_SECRET'],
+    credentialHelp: 'Create at https://developer.spotify.com/dashboard',
+    source: 'community: marcelmarais/spotify-mcp-server',
+  },
+
+  // Verified: github.com/sinco-lab/mcp-youtube-transcript
+  'youtube-transcript': {
+    id: 'youtube-transcript',
+    name: 'YouTube Transcript',
+    category: 'research',
+    description: 'YouTube video transcripts (multi-language, no API key needed)',
+    command: 'npx',
+    args: ['-y', '@sinco-lab/mcp-youtube-transcript'],
+    env: {},
+    credentialKeys: [],
+    source: 'community: sinco-lab/mcp-youtube-transcript',
+  },
+
+  // ════ Research ════
+  arxiv: {
+    id: 'arxiv',
+    name: 'arXiv',
+    category: 'research',
+    description: 'Search + fetch arXiv scientific papers',
+    command: 'uvx',
+    args: ['mcp-simple-arxiv'],
+    env: {},
+    credentialKeys: [],
+    source: 'community: mcp-simple-arxiv',
+  },
+
+  // ════ Cloud / Infra ════
+  // Verified: github.com/alexei-led/k8s-mcp-server (Docker-based)
+  kubernetes: {
+    id: 'kubernetes',
+    name: 'Kubernetes',
+    category: 'dev',
+    description: 'Execute kubectl + helm commands in safe sandbox',
+    command: 'docker',
+    args: [
+      'run', '-i', '--rm',
+      '-v', '${KUBECONFIG_DIR:-${HOME}/.kube}:/home/appuser/.kube:ro',
+      'ghcr.io/alexei-led/k8s-mcp-server:latest',
+    ],
+    env: {},
+    credentialKeys: ['KUBECONFIG_DIR'],
+    credentialHelp: 'Defaults to ~/.kube; override for custom kubeconfig location',
+    source: 'community: alexei-led/k8s-mcp-server',
+  },
+
+  // ════ Browser automation (cloud) ════
+  // Verified: github.com/browserbase/mcp-server-browserbase
+  browserbase: {
+    id: 'browserbase',
+    name: 'Browserbase',
+    category: 'dev',
+    description: 'Cloud browser automation (headless Chrome at scale)',
+    command: 'npx',
+    args: ['-y', '@browserbasehq/mcp'],
+    env: { BROWSERBASE_API_KEY: '${BROWSERBASE_API_KEY}', BROWSERBASE_PROJECT_ID: '${BROWSERBASE_PROJECT_ID}' },
+    credentialKeys: ['BROWSERBASE_API_KEY', 'BROWSERBASE_PROJECT_ID'],
+    credentialHelp: 'Create at https://www.browserbase.com',
+    source: 'official: Browserbase',
+  },
+
+  // ════ Google Workspace (remote HTTP, official) ════
+  // Verified: developers.google.com/workspace/guides/configure-mcp-servers
+  // These use serverUrl + OAuth (not stdio command).
+  gmail: {
+    id: 'gmail',
+    name: 'Gmail (Google official)',
+    category: 'productivity',
+    description: 'Gmail messages, drafts, labels via official Google MCP',
+    transport: 'http',
+    serverUrl: 'https://gmailmcp.googleapis.com/mcp/v1',
+    oauth: { clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID', clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET' },
+    credentialKeys: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+    credentialHelp: 'Create OAuth client at https://console.cloud.google.com/apis/credentials (enable Gmail API + MCP service)',
+    source: 'official: Google',
+  },
+  'google-drive': {
+    id: 'google-drive',
+    name: 'Google Drive (Google official)',
+    category: 'productivity',
+    description: 'Drive files, folders, search via official Google MCP',
+    transport: 'http',
+    serverUrl: 'https://drivemcp.googleapis.com/mcp/v1',
+    oauth: { clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID', clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET' },
+    credentialKeys: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+    credentialHelp: 'Same OAuth as Gmail; enable Drive API + MCP service',
+    source: 'official: Google',
+  },
+  'google-calendar': {
+    id: 'google-calendar',
+    name: 'Google Calendar (Google official)',
+    category: 'productivity',
+    description: 'Calendar events, free/busy, attendees via official Google MCP',
+    transport: 'http',
+    serverUrl: 'https://calendarmcp.googleapis.com/mcp/v1',
+    oauth: { clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID', clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET' },
+    credentialKeys: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+    credentialHelp: 'Same OAuth as Gmail; enable Calendar API + MCP service',
+    source: 'official: Google',
+  },
+  'google-chat': {
+    id: 'google-chat',
+    name: 'Google Chat (Google official)',
+    category: 'productivity',
+    description: 'Google Chat spaces + messages via official Google MCP',
+    transport: 'http',
+    serverUrl: 'https://chatmcp.googleapis.com/mcp/v1',
+    oauth: { clientIdEnv: 'GOOGLE_OAUTH_CLIENT_ID', clientSecretEnv: 'GOOGLE_OAUTH_CLIENT_SECRET' },
+    credentialKeys: ['GOOGLE_OAUTH_CLIENT_ID', 'GOOGLE_OAUTH_CLIENT_SECRET'],
+    credentialHelp: 'Same OAuth as Gmail; enable Chat API + MCP service',
+    source: 'official: Google',
+  },
+
+  // ════ Web scraping / fetch ════
+  // Verified: github.com/punkpeye/awesome-mcp-servers references
+  apify: {
+    id: 'apify',
+    name: 'Apify',
+    category: 'dev',
+    description: 'Apify actors — 4500+ scrapers (Instagram, Twitter, Maps, etc.)',
+    command: 'npx',
+    args: ['-y', '@apify/actors-mcp-server'],
+    env: { APIFY_TOKEN: '${APIFY_TOKEN}' },
+    credentialKeys: ['APIFY_TOKEN'],
+    credentialHelp: 'Create at https://console.apify.com/account/integrations',
+    source: 'official: Apify',
+  },
+
+  // ════ Time / utilities ════
+  time: {
+    id: 'time',
+    name: 'Time',
+    category: 'dev',
+    description: 'Timezone conversions + current time (no creds)',
+    command: 'uvx',
+    args: ['mcp-server-time', '--local-timezone=${LOCAL_TIMEZONE:-UTC}'],
+    env: {},
+    credentialKeys: [],
+    source: 'official: modelcontextprotocol/servers',
   },
 };
 

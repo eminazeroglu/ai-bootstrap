@@ -11,11 +11,18 @@ import { join } from 'node:path';
 import { CLAUDE_DIR, HOME, ensureDir } from '../utils/paths.js';
 import { MCP_CATALOG, getMcpEntry } from './mcp-catalog.js';
 
-interface McpServerConfig {
+interface McpServerStdioConfig {
   command: string;
   args: string[];
   env?: Record<string, string>;
 }
+
+interface McpServerHttpConfig {
+  serverUrl: string;
+  oauth?: { clientId: string; clientSecret: string };
+}
+
+type McpServerConfig = McpServerStdioConfig | McpServerHttpConfig;
 
 interface ClaudeJson {
   mcpServers?: Record<string, McpServerConfig>;
@@ -94,12 +101,28 @@ export function writeMcpConfig(selectedMcps: string[]): McpWriteResult {
       continue;
     }
 
-    const serverConfig: McpServerConfig = {
-      command: entry.command,
-      args: entry.args,
-    };
-    if (Object.keys(entry.env).length > 0) {
-      serverConfig.env = entry.env;
+    let serverConfig: McpServerConfig;
+    if (entry.transport === 'http' && entry.serverUrl) {
+      const httpCfg: McpServerHttpConfig = { serverUrl: entry.serverUrl };
+      if (entry.oauth) {
+        httpCfg.oauth = {
+          clientId: `\${${entry.oauth.clientIdEnv}}`,
+          clientSecret: `\${${entry.oauth.clientSecretEnv}}`,
+        };
+      }
+      serverConfig = httpCfg;
+    } else if (entry.command) {
+      const stdioCfg: McpServerStdioConfig = {
+        command: entry.command,
+        args: entry.args ?? [],
+      };
+      if (entry.env && Object.keys(entry.env).length > 0) {
+        stdioCfg.env = entry.env;
+      }
+      serverConfig = stdioCfg;
+    } else {
+      missingFromCatalog.push(id);
+      continue;
     }
     claudeJson.mcpServers[id] = serverConfig;
     installed.push(id);
