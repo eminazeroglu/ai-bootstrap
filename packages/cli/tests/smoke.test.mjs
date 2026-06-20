@@ -173,8 +173,10 @@ describe('bundle-definitions', () => {
   assert('founder includes decision-maker', SKILL_BUNDLES.founder.includes('decision-maker'));
   assert('marketer includes seo-optimizer', SKILL_BUNDLES.marketer.includes('seo-optimizer'));
   assert('foundation has 2 agents', AGENT_BUNDLES.foundation.length === 2);
-  assert('developer has 16 agents (C-13 expanded)', AGENT_BUNDLES.developer.length === 16);
-  assert('full-stack has 21 agents', AGENT_BUNDLES['full-stack'].length === 21);
+  assert('developer has 16 agents', AGENT_BUNDLES.developer.length === 16);
+  assert('full-stack has 75+ agents (C-15 final)', AGENT_BUNDLES['full-stack'].length >= 75);
+  assert('marketer includes SEO agents', AGENT_BUNDLES.marketer.includes('seo-technical'));
+  assert('creator includes video-pipeline', AGENT_BUNDLES.creator.includes('video-pipeline'));
 
   const plan = resolvePlan('founder', 'founder');
   assert('founder plan has 30+ skills', plan.skills.length >= 30);
