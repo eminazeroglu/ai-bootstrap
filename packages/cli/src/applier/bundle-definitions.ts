@@ -89,7 +89,20 @@ const C_LEVEL = [
   'cto-advisor',
   'cfo-advisor',
   'cmo-advisor',
+  'cro-advisor',
+  'coo-advisor',
+  'chro-advisor',
+  'ciso-advisor',
+  'gc-advisor',
   'founder-mode',
+];
+
+const VERTICAL = [
+  'legal-researcher',
+  'healthcare-compliance',
+  'finance-analyst',
+  'e-commerce-optimizer',
+  'real-estate-analyzer',
 ];
 
 export const SKILL_BUNDLES: Record<string, string[]> = {
@@ -146,6 +159,7 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     ...PRODUCTIVITY,
     ...ADVANCED_ENG,
     ...C_LEVEL,
+    ...VERTICAL,
   ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe
 };
 
