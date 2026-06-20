@@ -196,13 +196,27 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
   ].filter((v, i, a) => a.indexOf(v) === i),  // dedupe (ALL 85 skills)
 };
 
+const FOUNDATION_AGENTS = ['code-reviewer', 'researcher'];
+
+const ENGINEERING_AGENTS = [
+  'code-explorer',
+  'code-architect',
+  'security-auditor',
+  'performance-profiler',
+  'refactor-planner',
+  'debugger',
+  'devops-engineer',
+  'backend-engineer',
+  'frontend-engineer',
+];
+
 export const AGENT_BUNDLES: Record<string, string[]> = {
-  foundation: ['code-reviewer'],
-  developer: ['code-reviewer'],
-  marketer: [],
-  creator: [],
-  founder: ['code-reviewer'],
-  'full-stack': ['code-reviewer'],
+  foundation: [...FOUNDATION_AGENTS],
+  developer: [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
+  marketer: [...FOUNDATION_AGENTS],
+  creator: [...FOUNDATION_AGENTS],
+  founder: [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
+  'full-stack': [...FOUNDATION_AGENTS, ...ENGINEERING_AGENTS],
 };
 
 export interface InstallPlan {
