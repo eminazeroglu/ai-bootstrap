@@ -1,27 +1,38 @@
 // Install selected skills to ~/.claude/skills/
-// Uses symlinks to packages/templates/skills/<skill>/SKILL.md
+// Copies skill directories from packages/templates/skills/<skill>/
+//
+// Why copy (not symlink): npm caches may be cleaned, breaking symlinks.
+// Copying makes the install self-contained and survives any source removal.
+// Templates are versioned via the npm package itself.
 
-import { symlinkSync, existsSync, statSync, mkdirSync } from 'node:fs';
+import { existsSync, cpSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ensureDir, SKILLS_DIR } from '../utils/paths.js';
 
 /**
- * Resolve the absolute path to packages/templates/skills/
- * Works whether running from dist/ (production) or src/ (dev).
+ * Resolve the absolute path to skills templates folder.
+ *
+ * Lookup order:
+ *   1) ./templates/skills/    — published npm package (bundled via prepack)
+ *   2) ../templates/skills/   — packages/cli/templates/skills/ (dev edit fallback)
+ *   3) ../../templates/skills/ — packages/templates/skills/ (monorepo dev)
+ *
+ * Returns the first path that exists; otherwise the most-likely production path.
  */
 function templatesSkillsPath(): string {
-  // __dirname equivalent in ESM
   const here = fileURLToPath(import.meta.url);
-  // Walk up to find packages/templates/skills/
-  // <repo>/packages/cli/dist/applier/skills-installer.js
-  //   ../  → dist/applier/
-  //   ../../ → dist/
-  //   ../../../ → cli/
-  //   ../../../../ → packages/
-  //   + templates/skills → packages/templates/skills ✓
-  const candidate = resolve(here, '..', '..', '..', '..', 'templates', 'skills');
-  return candidate;
+  // From dist/applier/skills-installer.js:
+  //   - cli root = ../../../
+  const cliRoot = resolve(here, '..', '..', '..');
+  const candidates = [
+    join(cliRoot, 'templates', 'skills'),                // 1) published npm pkg
+    resolve(cliRoot, '..', 'templates', 'skills'),        // 2) sibling templates package (monorepo)
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  return candidates[0];
 }
 
 export interface SkillInstallResult {
@@ -52,7 +63,7 @@ export function installSkills(skillNames: string[]): SkillInstallResult {
 
   for (const name of skillNames) {
     const sourceDir = join(templatesDir, name);
-    const targetLink = join(SKILLS_DIR, name);
+    const targetDir = join(SKILLS_DIR, name);
 
     // Check source exists
     if (!existsSync(sourceDir)) {
@@ -64,7 +75,7 @@ export function installSkills(skillNames: string[]): SkillInstallResult {
     }
 
     // Check target already exists
-    if (existsSync(targetLink)) {
+    if (existsSync(targetDir)) {
       result.skipped.push({
         skill: name,
         reason: 'artıq install olunub',
@@ -72,11 +83,12 @@ export function installSkills(skillNames: string[]): SkillInstallResult {
       continue;
     }
 
-    // Create symlink
+    // Copy recursively (npm-cache-safe; survives source removal)
     try {
-      symlinkSync(sourceDir, targetLink, 'dir');
+      cpSync(sourceDir, targetDir, { recursive: true, dereference: true });
       result.installed.push(name);
     } catch (err) {
+      try { rmSync(targetDir, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
       result.errors.push({
         skill: name,
         error: err instanceof Error ? err.message : String(err),

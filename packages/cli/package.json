@@ -11,17 +11,20 @@
   "files": [
     "bin/",
     "dist/",
+    "templates/",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "prepublishOnly": "tsc && node tests/smoke.test.mjs",
+    "prepack": "node scripts/copy-templates.mjs",
+    "prepublishOnly": "tsc && node scripts/copy-templates.mjs && node tests/smoke.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'TODO: eslint'",
     "test": "tsc && node tests/smoke.test.mjs",
-    "pack:dry": "npm pack --dry-run"
+    "pack:dry": "npm pack --dry-run",
+    "copy:templates": "node scripts/copy-templates.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",

@@ -221,10 +221,12 @@ describe('skills-installer', () => {
   assert('skipped nonexistent', result.skipped.length === 1);
   assert('skipped reason contains "Mənbə yoxdur"', result.skipped[0].reason.includes('Mənbə yoxdur'));
 
-  // Verify actual symlinks exist
+  // Verify actual copies exist (not symlinks since C-20)
   const skillsDir = join(mockHome, '.claude', 'skills');
-  assert('learning-keeper symlink exists', existsSync(join(skillsDir, 'learning-keeper')));
-  assert('architect symlink exists', existsSync(join(skillsDir, 'architect')));
+  assert('learning-keeper dir exists', existsSync(join(skillsDir, 'learning-keeper')));
+  assert('learning-keeper SKILL.md copied', existsSync(join(skillsDir, 'learning-keeper', 'SKILL.md')));
+  assert('architect dir exists', existsSync(join(skillsDir, 'architect')));
+  assert('architect SKILL.md copied', existsSync(join(skillsDir, 'architect', 'SKILL.md')));
 });
 
 // ════ Test 7: agents-installer ════
@@ -236,7 +238,8 @@ describe('agents-installer', () => {
   assert('skipped nonexistent', result.skipped.length === 1);
 
   const agentsDir = join(mockHome, '.claude', 'agents');
-  assert('code-reviewer symlink exists', existsSync(join(agentsDir, 'code-reviewer')));
+  assert('code-reviewer dir exists', existsSync(join(agentsDir, 'code-reviewer')));
+  assert('code-reviewer AGENT.md copied', existsSync(join(agentsDir, 'code-reviewer', 'AGENT.md')));
 });
 
 // ════ Cleanup ════
