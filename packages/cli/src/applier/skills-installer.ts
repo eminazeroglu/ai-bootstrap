@@ -13,10 +13,14 @@ import { ensureDir, SKILLS_DIR } from '../utils/paths.js';
 function templatesSkillsPath(): string {
   // __dirname equivalent in ESM
   const here = fileURLToPath(import.meta.url);
-  // walk up to find packages/templates/skills/
-  // typical: <repo>/packages/cli/dist/applier/skills-installer.js
-  //          → ../../../templates/skills
-  const candidate = resolve(here, '..', '..', '..', 'templates', 'skills');
+  // Walk up to find packages/templates/skills/
+  // <repo>/packages/cli/dist/applier/skills-installer.js
+  //   ../  → dist/applier/
+  //   ../../ → dist/
+  //   ../../../ → cli/
+  //   ../../../../ → packages/
+  //   + templates/skills → packages/templates/skills ✓
+  const candidate = resolve(here, '..', '..', '..', '..', 'templates', 'skills');
   return candidate;
 }
 

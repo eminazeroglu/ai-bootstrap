@@ -9,8 +9,8 @@ import { ensureDir, AGENTS_DIR } from '../utils/paths.js';
 function templatesAgentsPath(): string {
   const here = fileURLToPath(import.meta.url);
   // <repo>/packages/cli/dist/applier/agents-installer.js
-  //  → ../../../templates/agents
-  return resolve(here, '..', '..', '..', 'templates', 'agents');
+  //   4 levels up to repo packages/ + templates/agents
+  return resolve(here, '..', '..', '..', '..', 'templates', 'agents');
 }
 
 export interface AgentInstallResult {

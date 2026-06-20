@@ -11,7 +11,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'TODO: eslint'",
-    "test": "echo 'TODO: tests'"
+    "test": "tsc && node tests/smoke.test.mjs"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
