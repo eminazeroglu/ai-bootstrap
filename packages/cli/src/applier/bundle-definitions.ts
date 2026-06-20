@@ -36,6 +36,23 @@ const SOCIAL = [
   'linkedin-expert',
 ];
 
+const CREATOR_SUITE = [
+  'showrunner',
+  'screenwriter',
+  'character-designer',
+  'location-designer',
+  'director',
+  'storyboard-builder',
+  'image-prompt-engineer',
+  'image-validator',
+  'video-prompt-engineer',
+  'composer',
+  'lyricist',
+  'suno-prompt-engineer',
+  'elevenlabs',
+  'youtube-thumbnail-designer',
+];
+
 export const SKILL_BUNDLES: Record<string, string[]> = {
   foundation: [...FOUNDATION_CORE],
   developer: [
@@ -63,9 +80,9 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     'multilingual-copywriter',
     'doc-writer',
     ...SOCIAL,
+    ...CREATOR_SUITE,
     'copywriter-pro',
     'growth-strategist',
-    // C-8+: showrunner, screenwriter, character-designer, image-prompt-engineer, etc.
   ],
   founder: [
     ...FOUNDATION_CORE,
@@ -78,7 +95,8 @@ export const SKILL_BUNDLES: Record<string, string[]> = {
     ...PRODUCT_UX,
     ...MARKETING,
     ...SOCIAL,
-    // C-8+: creator suite, design, coaching, advanced eng (~60 more)
+    ...CREATOR_SUITE,
+    // C-8+: graphic design (6), coaching (5), productivity (8), multilingual (3), advanced eng (8)
   ],
 };
 
