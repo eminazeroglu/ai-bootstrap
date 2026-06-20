@@ -2,7 +2,12 @@
 
 > Personal AI infrastructure bootstrap for Claude Code — one command, every project, every machine.
 
-**Status**: 🟡 Mərhələ A tamamlandı (research + decisions). Mərhələ B (proof of concept) hazırlanır.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
+[![Status](https://img.shields.io/badge/Status-Mərhələ_C-orange.svg)](docs/PROPOSAL.md)
+[![GitHub](https://img.shields.io/badge/GitHub-eminazeroglu%2Fai--bootstrap-181717?logo=github)](https://github.com/eminazeroglu/ai-bootstrap)
+
+**Status**: 🟢 Mərhələ A + B + C-2/3/4 done — CLI tested, TypeScript builds clean, 12 commits, public on GitHub.
 
 ## What is this?
 
