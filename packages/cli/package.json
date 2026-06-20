@@ -1,17 +1,27 @@
 {
   "name": "ai-bootstrap",
   "version": "0.0.1",
-  "description": "Personal AI infrastructure bootstrap for Claude Code — interactive setup wizard",
+  "description": "Personal AI infrastructure bootstrap for Claude Code — interactive setup wizard with skills, agents, MCPs, and cross-project memory",
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "ai-bootstrap": "./bin/init.js"
   },
+  "files": [
+    "bin/",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
+    "prepublishOnly": "tsc && node tests/smoke.test.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'TODO: eslint'",
-    "test": "tsc && node tests/smoke.test.mjs"
+    "test": "tsc && node tests/smoke.test.mjs",
+    "pack:dry": "npm pack --dry-run"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",
@@ -26,16 +36,36 @@
   },
   "keywords": [
     "claude-code",
+    "claude-ai",
+    "anthropic",
     "ai",
     "bootstrap",
     "infrastructure",
     "mcp",
     "skills",
-    "agents"
+    "agents",
+    "personal-ai",
+    "azerbaijani",
+    "multilingual"
   ],
-  "author": "Emin Azəroğlu",
+  "author": {
+    "name": "Emin Azəroğlu",
+    "url": "https://github.com/eminazeroglu"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/eminazeroglu/ai-bootstrap",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eminazeroglu/ai-bootstrap.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/eminazeroglu/ai-bootstrap/issues"
+  },
   "engines": {
     "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
