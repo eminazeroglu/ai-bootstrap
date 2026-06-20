@@ -10,11 +10,14 @@ import chalk from 'chalk';
 import { runWizard } from './wizard.js';
 import { applyState } from './applier/index.js';
 import { runMcpCommand } from './commands/mcp.js';
+import { runDoctor } from './commands/doctor.js';
+import { runUpdate, saveState } from './commands/update.js';
 
 async function runDefaultWizard(): Promise<void> {
   try {
     const state = await runWizard();
     const result = await applyState(state);
+    saveState(state);
 
     console.log('');
     console.log(chalk.bold.green('🎉 ai-bootstrap setup tamamlandı!'));
@@ -45,11 +48,13 @@ ${chalk.bold('ai-bootstrap')} — Claude Code personal AI infrastructure
 
 ${chalk.bold('Usage:')}
   ${chalk.cyan('ai-bootstrap')}                  Interactive 6-step setup wizard
-  ${chalk.cyan('ai-bootstrap mcp list')}         List available MCP servers
-  ${chalk.cyan('ai-bootstrap mcp installed')}    List MCPs installed via ai-bootstrap
-  ${chalk.cyan('ai-bootstrap mcp credentials')}  Fill MCP credentials interactively
-  ${chalk.cyan('ai-bootstrap --version')}        Print version
-  ${chalk.cyan('ai-bootstrap --help')}           This help
+  ${chalk.cyan('ai-bootstrap update')}            Re-sync skills + agents from template bundle
+  ${chalk.cyan('ai-bootstrap doctor')}            Diagnose install health (symlinks, MCPs, creds)
+  ${chalk.cyan('ai-bootstrap mcp list')}          List available MCP servers
+  ${chalk.cyan('ai-bootstrap mcp installed')}     List MCPs installed via ai-bootstrap
+  ${chalk.cyan('ai-bootstrap mcp credentials')}   Fill MCP credentials interactively
+  ${chalk.cyan('ai-bootstrap --version')}         Print version
+  ${chalk.cyan('ai-bootstrap --help')}            This help
 `);
 }
 
@@ -75,6 +80,16 @@ async function main(): Promise<void> {
 
   if (cmd === 'mcp') {
     return runMcpCommand(args.slice(1));
+  }
+
+  if (cmd === 'doctor') {
+    runDoctor();
+    return;
+  }
+
+  if (cmd === 'update') {
+    runUpdate();
+    return;
   }
 
   console.error(chalk.red(`Unknown command: ${cmd}`));
