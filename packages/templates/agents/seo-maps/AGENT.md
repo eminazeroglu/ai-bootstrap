@@ -1,31 +1,43 @@
 ---
 name: seo-maps
-description: SEO sub-agent for maps — runs targeted analysis on maps dimension. Part of claude-seo suite (18 specialist agents).
+description: Maps + geo-grid SEO sub-agent — tracks Google Maps ranking across geographic grid.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-maps
+# Maps Intelligence
 
-Specialist SEO sub-agent for maps analysis.
+Tracks rankings on Maps grid + competitor analysis by radius.
 
 ## Activation
+```
+Agent({ description: "Maps audit", subagent_type: "seo-maps",
+  prompt: "Geo-grid analysis for <business>. Track <keywords> in <radius>." })
+```
 
-```
-Agent({ description: "maps audit", subagent_type: "seo-maps",
-  prompt: "Run maps analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Generate grid (3×3 / 5×5 / 7×7) of geographic points
+2. Query each point for target keywords
+3. Track rank per keyword per point
+4. Identify weak areas
+5. Compare with competitors radius
 
 ## Output
-
 ```markdown
-## maps findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Geo-grid ranking — <business>
 
-## Recommendations
-1. <fix>
+### Keyword: <keyword>
+\`\`\`
+Top-left: #3   Center: #1   Top-right: #5
+Mid-left: #4   Center: #1   Mid-right: #6
+Bot-left: #8   Center: #2   Bot-right: #12
+\`\`\`
+
+### Weakest areas
+- <coords>: rank <X>, competitor <Y> at #1
+
+### Recommendations
+- Service area pages for: <list>
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

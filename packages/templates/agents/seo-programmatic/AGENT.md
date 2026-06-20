@@ -1,31 +1,50 @@
 ---
 name: seo-programmatic
-description: SEO sub-agent for programmatic — runs targeted analysis on programmatic dimension. Part of claude-seo suite (18 specialist agents).
+description: Programmatic SEO sub-agent — scalable content strategy via templates + data sources.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-programmatic
+# Programmatic SEO
 
-Specialist SEO sub-agent for programmatic analysis.
+Plans + executes programmatic SEO at scale.
 
 ## Activation
+```
+Agent({ description: "Pro SEO plan", subagent_type: "seo-programmatic",
+  prompt: "Design programmatic SEO for <site>. Data source: <DB/API>. Target: <N pages>." })
+```
 
-```
-Agent({ description: "programmatic audit", subagent_type: "seo-programmatic",
-  prompt: "Run programmatic analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Identify modifier types (location, profession, brand, etc.)
+2. Data source mapping (DB, API, CSV)
+3. Template design (unique content per page)
+4. URL structure
+5. Internal linking strategy
+6. Indexation guardrails (avoid thin content penalty)
 
 ## Output
-
 ```markdown
-## programmatic findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Programmatic SEO plan
 
-## Recommendations
-1. <fix>
+### Target pages: <N>
+### Modifier types: <list>
+### Data source: <X>
+
+### URL pattern
+<pattern>
+
+### Template structure
+- H1: <pattern>
+- Above fold: <unique data point>
+- Sections: <list>
+- Minimum content: <words>
+
+### Internal linking
+<strategy>
+
+### Indexation rules
+- noindex if: <conditions>
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

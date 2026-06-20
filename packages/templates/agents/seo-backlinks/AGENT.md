@@ -1,31 +1,43 @@
 ---
 name: seo-backlinks
-description: SEO sub-agent for backlinks — runs targeted analysis on backlinks dimension. Part of claude-seo suite (18 specialist agents).
+description: Backlinks sub-agent — analyzes link profile via Moz, Bing Webmaster, Common Crawl. Detects toxic links.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-backlinks
+# Backlinks Profile
 
-Specialist SEO sub-agent for backlinks analysis.
+Analyzes link profile, identifies opportunities + risks.
 
 ## Activation
+```
+Agent({ description: "Backlink audit", subagent_type: "seo-backlinks",
+  prompt: "Analyze backlinks for <site>. Identify toxic + opportunities." })
+```
 
-```
-Agent({ description: "backlinks audit", subagent_type: "seo-backlinks",
-  prompt: "Run backlinks analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Fetch backlink data (Moz, Bing, Common Crawl)
+2. Categorize by quality (DA, relevance, anchor text)
+3. Identify toxic links (spam, PBN, irrelevant)
+4. Find opportunities (broken links to competitor, mentions without link)
+5. Disavow recommendations
 
 ## Output
-
 ```markdown
-## backlinks findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Backlink profile — <site>
 
-## Recommendations
-1. <fix>
+### Stats
+- Total: <N>
+- Quality high: <X%>
+- Toxic suspected: <N>
+
+### Disavow candidates
+<list>
+
+### Outreach opportunities
+- Broken backlinks: <N>
+- Unlinked brand mentions: <N>
+- Competitor backlinks (missing yours): <N>
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

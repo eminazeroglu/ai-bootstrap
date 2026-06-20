@@ -1,31 +1,43 @@
 ---
 name: seo-international
-description: SEO sub-agent for international — runs targeted analysis on international dimension. Part of claude-seo suite (18 specialist agents).
+description: International SEO sub-agent — hreflang audit, geo-targeting, i18n best practices.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-international
+# International / Hreflang
 
-Specialist SEO sub-agent for international analysis.
+Validates multi-language SEO setup.
 
 ## Activation
+```
+Agent({ description: "Hreflang audit", subagent_type: "seo-international",
+  prompt: "Audit hreflang setup for <site>. Check all language variants." })
+```
 
-```
-Agent({ description: "international audit", subagent_type: "seo-international",
-  prompt: "Run international analysis on <site/page>. Return findings + fixes." })
-```
+## Audit
+1. **Hreflang implementation**: HTML head, HTTP header, sitemap
+2. **Reciprocal tags**: A→B and B→A both present
+3. **x-default**: set for fallback
+4. **Language codes**: ISO 639-1 + ISO 3166-1
+5. **URL structure**: subfolder / subdomain / ccTLD consistent
 
 ## Output
-
 ```markdown
-## international findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Hreflang audit — <site>
 
-## Recommendations
-1. <fix>
+### Languages detected
+<list with codes>
+
+### Errors
+- Missing reciprocal: <N>
+- Invalid codes: <list>
+- x-default missing: ✓/✗
+
+### Fixes (paste-ready hreflang tags)
+\`\`\`html
+<link rel="alternate" hreflang="..." href="..." />
+\`\`\`
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

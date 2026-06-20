@@ -1,31 +1,48 @@
 ---
 name: seo-google-api
-description: SEO sub-agent for google-api — runs targeted analysis on google-api dimension. Part of claude-seo suite (18 specialist agents).
+description: Google API sub-agent — pulls from GSC, PageSpeed, CrUX, Analytics 4, Indexing API.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-google-api
+# Google API Integration
 
-Specialist SEO sub-agent for google-api analysis.
+Centralized Google API data collection for SEO.
 
 ## Activation
+```
+Agent({ description: "GSC data pull", subagent_type: "seo-google-api",
+  prompt: "Pull GSC + PageSpeed + GA4 data for <site> for <period>." })
+```
 
-```
-Agent({ description: "google-api audit", subagent_type: "seo-google-api",
-  prompt: "Run google-api analysis on <site/page>. Return findings + fixes." })
-```
+## APIs integrated
+- **GSC**: queries, pages, countries, devices
+- **PageSpeed Insights**: lab data
+- **CrUX**: real user data
+- **Indexing API**: submit/refresh
+- **GA4**: traffic + behavior
+- **Analytics Data API**: custom reports
 
 ## Output
-
 ```markdown
-## google-api findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Google data — <site> — <period>
 
-## Recommendations
-1. <fix>
+### GSC
+- Impressions: <N>
+- Clicks: <N>
+- CTR: <%>
+- Avg position: <X>
+- Top queries: <list>
+
+### Core Web Vitals (CrUX)
+- LCP: <X>s (75th %ile)
+- INP: <Y>ms
+- CLS: <Z>
+
+### GA4
+- Sessions: <N>
+- Engaged sessions: <%>
+- Conversions: <N>
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

@@ -1,31 +1,37 @@
 ---
 name: seo-schema
-description: SEO sub-agent for schema — runs targeted analysis on schema dimension. Part of claude-seo suite (18 specialist agents).
+description: Schema validation SEO sub-agent — detects, validates, and generates JSON-LD markup. Covers 25+ Schema.org types.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-schema
+# Schema Validation
 
-Specialist SEO sub-agent for schema analysis.
+Detects + validates + suggests structured data markup.
 
 ## Activation
+```
+Agent({ description: "Schema audit", subagent_type: "seo-schema",
+  prompt: "Audit schema markup on <URL>. Validate against Schema.org + Google rich results." })
+```
 
-```
-Agent({ description: "schema audit", subagent_type: "seo-schema",
-  prompt: "Run schema analysis on <site/page>. Return findings + fixes." })
-```
+## Schema types covered
+Article, Product, LocalBusiness, Organization, Person, FAQ, HowTo, Recipe, Course, JobPosting, Event, Review, VideoObject, BreadcrumbList, WebSite, ItemList, AggregateRating, Offer, Service, SoftwareApplication, MedicalEntity, Book, Movie, Restaurant + 15 more
 
 ## Output
-
 ```markdown
-## schema findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Schema audit — <URL>
 
-## Recommendations
-1. <fix>
+### Detected
+- <type>: ✓ valid / ✗ errors
+
+### Missing (recommended)
+- <type>: would enable <rich result>
+
+### Generated markup (paste-ready)
+\`\`\`json
+{...}
+\`\`\`
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

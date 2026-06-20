@@ -1,31 +1,43 @@
 ---
 name: seo-drift
-description: SEO sub-agent for drift — runs targeted analysis on drift dimension. Part of claude-seo suite (18 specialist agents).
+description: SEO drift monitor sub-agent — tracks ranking changes via SQLite snapshots, alerts on regressions.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-drift
+# Drift Monitor
 
-Specialist SEO sub-agent for drift analysis.
+Watches for SEO regressions over time.
 
 ## Activation
+```
+Agent({ description: "SEO drift check", subagent_type: "seo-drift",
+  prompt: "Compare current snapshot to baseline. Alert on regressions." })
+```
 
-```
-Agent({ description: "drift audit", subagent_type: "seo-drift",
-  prompt: "Run drift analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Load baseline snapshot (SQLite)
+2. Run current crawl
+3. Diff: rankings, indexed pages, schema, CWV
+4. Categorize changes (improvement / regression / neutral)
+5. Alert on > 10% regression any dimension
 
 ## Output
-
 ```markdown
-## drift findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Drift report — <date>
 
-## Recommendations
-1. <fix>
+### Improvements
+- <N> pages ranked higher
+
+### Regressions
+- 🔴 <N> pages dropped > 10 ranks
+- <details + likely cause>
+
+### New indexed pages
+- <N>
+
+### Removed from index
+- <N> (concerning if not intentional)
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

@@ -1,31 +1,44 @@
 ---
 name: seo-competitor
-description: SEO sub-agent for competitor — runs targeted analysis on competitor dimension. Part of claude-seo suite (18 specialist agents).
+description: Competitor SEO sub-agent — SERP comparison, gap analysis, keyword overlap.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-competitor
+# Competitor Analysis
 
-Specialist SEO sub-agent for competitor analysis.
+Compares your SEO posture to top competitors.
 
 ## Activation
+```
+Agent({ description: "Competitor SEO", subagent_type: "seo-competitor",
+  prompt: "Compare <site> to <competitors> across keywords + pages + backlinks." })
+```
 
-```
-Agent({ description: "competitor audit", subagent_type: "seo-competitor",
-  prompt: "Run competitor analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Identify top 3-5 competitors (organic share)
+2. Keyword gap analysis
+3. Page-level content gap
+4. Backlink gap
+5. Technical SEO comparison
 
 ## Output
-
 ```markdown
-## competitor findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## Competitor analysis — <site>
 
-## Recommendations
-1. <fix>
+### Keyword gap (competitors rank, you don't)
+- <keyword> — competitor ranks #<X>
+
+### Content gap (they have, you don't)
+- <topic> — <competitor URL>
+
+### Backlink gap
+- <linking site> → <competitor> (not to you)
+
+### Strategy
+1. Quick wins (low-effort gaps)
+2. Medium effort
+3. Long-term plays
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)

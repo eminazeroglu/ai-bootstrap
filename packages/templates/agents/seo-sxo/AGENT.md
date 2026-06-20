@@ -1,31 +1,43 @@
 ---
 name: seo-sxo
-description: SEO sub-agent for sxo — runs targeted analysis on sxo dimension. Part of claude-seo suite (18 specialist agents).
+description: SXO sub-agent — Search Experience Optimization. User stories, persona mapping, search-to-conversion flow.
 tools: Read, WebFetch, WebSearch, Bash
 scope: user
 ---
 
-# seo-sxo
+# Search Experience Optimization
 
-Specialist SEO sub-agent for sxo analysis.
+Optimizes for search experience, not just rankings.
 
 ## Activation
+```
+Agent({ description: "SXO audit", subagent_type: "seo-sxo",
+  prompt: "SXO audit for <site>. Map search-to-conversion flow." })
+```
 
-```
-Agent({ description: "sxo audit", subagent_type: "seo-sxo",
-  prompt: "Run sxo analysis on <site/page>. Return findings + fixes." })
-```
+## Workflow
+1. Map user personas + search intents
+2. Trace search → landing → engagement → conversion
+3. Identify friction points
+4. Recommend page experience improvements
+5. CTAs aligned with intent
 
 ## Output
-
 ```markdown
-## sxo findings
-- 🔴 Critical: <list>
-- 🟠 Important: <list>
-- 🟡 Minor: <list>
+## SXO map — <site>
 
-## Recommendations
-1. <fix>
+### Personas
+- <Persona 1>: <intent> → <pages> → <conversion>
+
+### Friction points
+- <stage> — <issue> — <fix>
+
+### CTA alignment
+- Page <X>: intent says <Y>, CTA says <Z> — mismatch
+- Recommended: <new CTA>
+
+### Quick wins
+<list>
 ```
 
-Version: 1.0.0 (C-15, 2026-06-20)
+Version: 1.0.0 (C-16, 2026-06-20)
