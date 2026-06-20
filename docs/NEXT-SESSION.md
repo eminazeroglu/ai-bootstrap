@@ -1,187 +1,190 @@
 ---
 name: Next session entry point
 description: Növbəti söhbətdə təzə Claude — bu faylı oxu, sonra davam et
-last_updated: 2026-06-20 (session 2 final)
-status: HANDOFF — Mərhələ A + B + C-1/2/3/4/5/6 done — C-7+ growth phase
+last_updated: 2026-06-20 final session
+status: v0.0.1 publish-ready (manual npm publish gözlənilir) — sonra v0.1.0 üçün C-10
 ---
 
 # 🎯 Növbəti Söhbət — Buradan Başla
 
-> **Salam, gələn Claude.** Bu söhbət 2026-06-19 → 2026-06-20-də 2 günlük marafon idi.
-> **15 commit**, **GitHub public**, **9,000+ sətr** kod/sənəd.
-> Sən təzə yaddaşla başlayırsan. Bu fayl tam mənzərəni verir.
+> **Salam, gələn Claude.** Bu rekord söhbət idi: 2026-06-19 → 2026-06-20.
+> **22 commit**, **GitHub public**, **52 production skill**, **~15,000+ sətr** kod.
+> Sən təzə yaddaşla başlayırsan. Tam mənzərə üçün PROPOSAL.md + DECISIONS.md + bu fayl oxu.
 
 ## 🌐 LIVE
 
 **GitHub**: https://github.com/eminazeroglu/ai-bootstrap (public, MIT)
+**npm package adı**: `@eminazeroglu/ai-bootstrap` (scoped, sərbəst, hazırdır)
 **Lokal**: `~/MyJobs/ai-bootstrap/`
 **Owner**: Emin Azəroğlu (@eminazeroglu)
 
-## 🔑 Vacib qaydalar (UNUTMA — `home/CLAUDE.md`-də 8 foundation rule)
+## 🔑 Vacib qaydalar (UNUTMA)
 
-1. **Rule 1 — sadə dil**: texniki jarqon qadağa, sadə AZ
-2. **Rule 2 — bir sual**: hər mesajda yalnız 1 sual
-3. **Rule 3 — visual approval first**: prompt inline → user görsün → SONRA MD
-4. **Rule 4 — expert research**: hər iddiaya WebSearch + mənbə
-5. **Rule 5 — honest discussion**: dürüst fikir, sus qalma qadağa
-6. **Rule 6 — don't decide without asking**: Eminin sərt qaydası
-7. **Rule 7 — AZ grammar mandatory**: SOV, hal şəkilçi, AMEA lüğət
-8. **Rule 8 — no superlatives**: faktlar bəs ("110K"), "yeganə" YOX
+home/CLAUDE.md-də 8 foundation rule. Ümumi:
+1. Sadə dil, jarqon qadağa
+2. Bir sual hər mesajda
+3. Visual approval first → MD sonra
+4. Expert research hər iddiada
+5. Dürüst müzakirə, sus qalma
+6. Sorulmadan qərar vermə
+7. AZ qrammatika SOV + slang qadağa (postlamaq → paylaşmaq)
+8. No superlatives (faktlar bəs)
 
-**Critical AZ slang qadağa** (`home/knowledge/languages/az.md`):
-- `postlamaq` → `paylaşmaq`
-- `lol`, `ok`, `pliz`, `sori`, `tşk` → AZ qarşılıq
+## ✅ TAM bitənlər (22 commits)
 
-## 📁 Layihə
-
-```
-~/MyJobs/ai-bootstrap/   (ayrı layihə, azerogluemin.az DEYİL)
-```
-
-## 🧠 Bu layihə nədir?
-
-`ai-bootstrap` — `npx ai-bootstrap init` ilə hər kompüteri tam Claude Code workstation-a çevirən open-source bootstrap kit.
-
-**HƏR ÜÇÜ OXU** (15 dəq):
-1. `README.md` — proyekt giriş + badges
-2. `docs/PROPOSAL.md` — tam plan (~540 sətr)
-3. `docs/DECISIONS.md` — 6 architectural decision locked
-
-## ✅ TAM bitənlər (15 commits)
-
-| Mərhələ | Output | Commit |
-|---|---|---|
-| **A — Research** | PROPOSAL.md, 5 preset, 85 skill catalog, 75 agent catalog, 80 MCP catalog | 3b0f00c, f92b8e7 |
-| **B-1 — Skeleton** | Monorepo (cli/templates/mcps) | 13882ef |
-| **B-2 — 5 skills** | learning-keeper, multilingual-copywriter, architect, doc-writer, test-writer | dd23d20 |
-| **B-3 — Knowledge** | home/CLAUDE.md (8 rules) + 10 knowledge files | 3e86d91 |
-| **B-4 — Install** | install.sh + uninstall.sh (bash strict) | 1b0f0aa |
-| **B-5/6 — Test + Docs** | Mock test passed + PROPOSAL update | 1b52900 |
-| **C-1 — GitHub** | PUBLIC repo + badges + topics | aca9839 |
-| **C-2 — CLI Wizard** | 12 TypeScript files, 6-step orchestrator | 8d5e9c8 |
-| **C-3 — Applier** | profile-writer, projects-writer, settings-writer | d49153e |
-| **C-4 — Full Applier** | mcp-config, skills-installer, bundle-definitions + TS build + smoke test PASSED | f21ab5a, 2b919b8 |
-| **C-5 — +2 skills +1 agent** | code-reviewer, security-auditor, code-reviewer AGENT.md | 4388198 |
-| **C-6 — +3 engineering skills** | simplify, verify, refactor | 70b9411 |
-
-## 📊 Cari Stats
-
-| Metric | Saytı |
+| Mərhələ | Status |
 |---|---|
-| **Commits** | 15 |
-| **TypeScript files** | 16 (CLI) |
-| **Production skills** | **10** (Foundation tier TAM) |
-| **Production agents** | 1 |
-| **Knowledge files** | 10 |
-| **Bash scripts** | 2 |
-| **Docs files** | 4 |
-| **TS build** | ✅ sıfır xəta |
-| **Smoke test** | ✅ profile-writer real fayl yazdı |
-| **GitHub** | ✅ public, MIT |
-| **Lines** | ~9,000+ |
+| A — Research | ✅ 100% |
+| 6 decisions | ✅ locked |
+| B-1...B-6 — Skeleton + 5 skill + knowledge + install | ✅ |
+| C-1 — GitHub public | ✅ |
+| C-2 — CLI wizard (12 TS files) | ✅ |
+| C-3 — Applier (3 writers) | ✅ |
+| C-4 — Full applier + test PASSED | ✅ |
+| C-5 — +2 skill +1 agent | ✅ |
+| C-6 — simplify, verify, refactor | ✅ |
+| C-7 — 13 skill (product/marketing/social) | ✅ |
+| C-8 — 14 skill (creator suite copy) | ✅ |
+| C-9 — 15 skill (graphic/coaching/productivity) | ✅ |
+| C-11 — Smoke tests + BUG FIX | ✅ |
+| C-12 — npm pack ready, name scoped | ✅ |
 
-## 🎯 10 Production Skills (Foundation tier complete)
+## 📊 Cari STATS
 
-| # | Skill | Funksiya |
-|---|---|---|
-| 1 | learning-keeper | auto-capture corrections, mistakes, facts |
-| 2 | multilingual-copywriter | universal copy + AZ knowledge base |
-| 3 | architect | system design + multi-tenancy |
-| 4 | doc-writer | numbered docs pattern (00-27) |
-| 5 | test-writer | Vitest/Jest/Playwright |
-| 6 | code-reviewer | 4-tier finding categorization |
-| 7 | security-auditor | OWASP Top 10 audit |
-| 8 | simplify | find + apply quality simplifications |
-| 9 | verify | observable behavior verification |
-| 10 | refactor | Fowler-style structural changes |
+| | Saytı |
+|---|---|
+| Commits | **22** |
+| Production skills | **52/85 (61%)** |
+| Production agents | 1/75 (1.3%) |
+| TypeScript CLI files | 16 |
+| Test assertions | **63/63 ✅** |
+| Bash scripts | 2 |
+| Knowledge files | 10 |
+| Docs files | 5 |
+| **Lines total** | **~15,000+** |
+| TS build | ✅ sıfır xəta |
+| GitHub | ✅ public |
+| npm name | `@eminazeroglu/ai-bootstrap` (reserved) |
 
-## 🟡 Növbəti — Mərhələ C-7+
+## 🎯 52 Production Skills
 
-### C-7 — Daha çox skill (75 qalıb)
-- **Tier 2 Product/UX** (8): product-manager, ux-researcher, landing-page-builder, accessibility-auditor, analytics-expert, experiment-designer, product-strategist, ui-ux-pro-max
-- **Tier 3 Marketing** (12): seo-optimizer, aeo-specialist, copywriter-pro, email-sequence-builder, cro-specialist, growth-strategist, content-strategist, competitive-intel, brand-marketer, social-strategist, attribution-analyst, brand-voice-analyzer
-- **Tier 4 Social per-platform** (8): instagram-expert, tiktok-expert, youtube-expert, linkedin-expert, twitter-expert, telegram-expert, cross-platform-strategist, community-manager
-- **Tier 5 Creator suite** (14): showrunner, screenwriter, character-designer, location-designer, director, storyboard-builder, image-prompt-engineer, image-validator, video-prompt-engineer, composer, lyricist, suno-prompt-engineer, elevenlabs, youtube-thumbnail-designer
-- **Tier 6 Graphic Design** (6): brand-identity-designer, logo-designer, color-palette-builder, typography-system-designer, brand-kit-builder, graphic-designer
-- **Tier 7 Personal** (5): business-coach, growth-coach, life-coach, psychologist, journal-keeper
-- **Tier 8 Productivity** (8): inbox-triage, meeting-notes, decision-maker, handoff-specialist, process-mapper, vendor-manager, capacity-planner, knowledge-base-builder
-- **Tier 9 Multilingual** (3): cultural-translator, localization-strategist, multilingual-content
-- **Tier 10 Advanced eng** (8): rag-architect, mcp-server-builder, ci-cd-builder, chaos-engineer, kubernetes-operator, incident-commander, tech-debt-tracker, migration-architect
+### Foundation (10)
+learning-keeper, multilingual-copywriter, architect, doc-writer, test-writer, code-reviewer, security-auditor, simplify, verify, refactor
 
-### C-8 — Agents (74 qalıb)
-Tier 1-10 üzrə 74 agent template (`packages/templates/agents/<name>/AGENT.md`)
-- Tier 5 ən böyük: 18 SEO sub-agent
+### Product/UX (4)
+product-manager, ux-researcher, landing-page-builder, accessibility-auditor
 
-### C-9 — MCP catalog implementation
-- `packages/mcps/catalog.json` (80 MCP metadata)
-- Per-MCP installers
-- Credential collector (`ai-bootstrap mcp configure <id>`)
+### Marketing (5)
+seo-optimizer, aeo-specialist, copywriter-pro, email-sequence-builder, growth-strategist
 
-### C-10 — GitHub OAuth flow
-- `ai-bootstrap github-backup setup`
-- Auto-creates private/public repo
-- git init ~/.claude + remote add + push
+### Social per-platform (5)
+instagram-expert, tiktok-expert, youtube-expert, linkedin-expert, social-strategist
 
-### C-11 — Interactive end-to-end test
-- Real TTY test: `node dist/index.js` interactive run
-- Mock HOME ilə Wizard tam icra
-- Bütün step-lərdə observe
+### Creator Suite (14)
+showrunner, screenwriter, character-designer, location-designer, director, storyboard-builder, image-prompt-engineer, image-validator, video-prompt-engineer, composer, lyricist, suno-prompt-engineer, elevenlabs, youtube-thumbnail-designer
 
-### C-12 — npm publish
-- `npm publish --access public`
-- Verify `npx ai-bootstrap init` globalda işləyir
+### Graphic Design (5)
+brand-identity-designer, logo-designer, color-palette-builder, typography-system-designer, brand-kit-builder
 
-### C-13 — Documentation site
-- Astro yaxud Mintlify
-- `ai-bootstrap.dev` (domain registration lazımdır)
-- Multilingual (AZ + EN)
+### Coaching (5)
+business-coach, growth-coach, life-coach, psychologist, journal-keeper
 
-### C-14 — Launch
-- ProductHunt
-- HackerNews
-- Twitter / X
-- AZ creator community
+### Productivity (4)
+inbox-triage, meeting-notes, decision-maker, knowledge-base-builder
 
-## 📋 Növbəti söhbətdə tövsiyə yön
+## 🟡 EMININ MANUAL İCRASI lazım
 
-**Birinci variant — Skill genişlənmə** (C-7):
-- Bir-bir Tier 2-10-dan high-value skill yaz
-- Hər skill ~200-300 sətr, paste-ready
-- Cəmi ~75 skill — 50+ saat iş (bir necə həftə)
+```bash
+cd ~/MyJobs/ai-bootstrap/packages/cli
 
-**İkinci variant — Quality first** (C-11):
-- Mövcud 10 skill + 1 agent + CLI gerçəkdən tam test
-- Real interactive TTY run
-- Bug-fix
-- Production-ready proof
-- 2-3 saat iş
+# 1. npm login (interactive — username, password, 2FA)
+npm login
 
-**Üçüncü variant — Distribution** (C-12):
-- npm publish (need npm account auth)
-- Real users tap edə bilərlər
-- Feedback loop başlayır
-- 1-2 saat iş
+# 2. Verify auth
+npm whoami
+# → eminazeroglu (yaxud sənin npm username)
 
-**Mənim tövsiyəm**: C-11 (test) → C-12 (publish) → SONRA C-7 (genişlənmə).
-Niyə: 10 working skill, published > 100 untested skill in repo.
+# 3. Final dry-run
+npm publish --dry-run
 
-## 🚨 Vacib qeydlər
+# 4. PUBLISH
+npm publish --access public
 
-1. **Mənə sorulmadan qərar vermə** — Emin sərt qaydası
-2. **Hər söhbət uzun olsa fasilə təklif et** — kontekst dolur, keyfiyyət düşür
-3. **TypeScript build həmişə yoxla** — `cd packages/cli && ./node_modules/.bin/tsc`
-4. **Hər skill commit edilsin** — kiçik atomic commit-lər
-5. **GitHub push hər commit-dən sonra** — Rule 6 (git push)
+# 5. Verify on npm
+npm view @eminazeroglu/ai-bootstrap
+
+# 6. Test global install
+npm install -g @eminazeroglu/ai-bootstrap
+ai-bootstrap
+
+# 7. Test npx (no install)
+npx @eminazeroglu/ai-bootstrap
+```
+
+PUBLISHING.md-də tam guide var.
+
+## 🟡 Növbəti söhbətdə (C-10+)
+
+### Skill genişlənmə (~33 qalıb)
+**Tier 2 expansion** (4): experiment-designer, analytics-expert, product-strategist, ui-ux-pro-max
+**Tier 3 expansion** (7): content-strategist, competitive-intel, brand-marketer, brand-voice-analyzer, attribution-analyst, conversion-optimizer, paid-ads-strategist
+**Tier 4 expansion** (3): twitter-expert, telegram-expert, cross-platform-strategist, community-manager
+**Tier 8 expansion** (4): handoff-specialist, process-mapper, vendor-manager, capacity-planner
+**Tier 9 multilingual** (3): cultural-translator, localization-strategist, multilingual-content
+**Tier 10 advanced eng** (8): rag-architect, mcp-server-builder, ci-cd-builder, chaos-engineer, kubernetes-operator, incident-commander, tech-debt-tracker, migration-architect
+**+ C-Level (10)**: ceo-advisor, cto-advisor, cfo-advisor, cmo-advisor, cro-advisor, coo-advisor, chro-advisor, ciso-advisor, gc-advisor, founder-mode
+**+ Vertical (8)**: legal-researcher, healthcare-compliance, finance-analyst, education-curriculum, e-commerce-optimizer, real-estate-analyzer, gaming-balance-designer, fintech-compliance
+
+### Agents (74 qalıb)
+SEO suite 18, role specialists 8, content orchestrators 6, ...
+
+### MCP installer kodu (80)
+Hər MCP üçün:
+- catalog.json metadata
+- Per-MCP installer
+- Credential collector
+
+### Digər iş
+- GitHub OAuth backup flow
+- Interactive TTY end-to-end test
+- Documentation site (Astro/Mintlify)
+- Update mechanism (`ai-bootstrap update`)
+- Telemetry opt-in
+- Launch
 
 ## 🎬 Necə davam et
 
-1. **Oxu**: README.md → docs/PROPOSAL.md → docs/DECISIONS.md → bu fayl
-2. **Salam ver Eminə**: "ai-bootstrap-da davam edirik — hansı yön? C-7 skill, C-11 test, yoxsa C-12 publish?"
-3. **Eminin cavabına görə icra et**
+1. **Oxu**: README + PROPOSAL.md + DECISIONS.md + bu fayl
+2. **Salam ver Eminə**:
+   - Əgər v0.0.1 publish olub: "ai-bootstrap-da davam edirik — Mərhələ C-10 (qalan skill genişlənmə)?"
+   - Əgər publish olmayıb: "Publish-i bitirək, sonra C-10?"
+3. **Eminin cavabına görə icra**
 
-Uğur!
+## ⏱️ Vaxt smetası
+
+- Qalan 33 skill: 20-30 saat (3-5 söhbət)
+- 74 agent: 25-35 saat (4-6 söhbət)
+- 80 MCP installer: 15-20 saat
+- GitHub OAuth: 4-6 saat
+- Documentation site: 8-10 saat
+- Launch: 2-3 saat
+
+**Cəmi qalan**: 75-105 saat (3-4 həftə dolğun iş)
+
+## 🚨 Vacib qaydalar (təkrar)
+
+1. **Sorulmadan qərar vermə** — Emin sərt qaydası
+2. **Hər skill commit + push** — kiçik atomic
+3. **TypeScript build yoxla** — hər skill batch sonra
+4. **Tests run et** — hər bundle update sonra
+5. **Söhbət uzun olsa fasilə təklif et** — keyfiyyət qoruyucu
+6. **Şəkilsiz MD yazma** — visual approval first (vizual üçün)
+7. **AZ slang qadağa** — paylaşmaq vs postlamaq
+
+Uğur! 🚀
 
 ---
 
-**Bu sənəd 2026-06-20 axşamında yazıldı.**
-**15 commit, GitHub public, 10 skills production-ready.**
+**Bu sənəd 2026-06-20 sonunda yazıldı.**
+**22 commit, 52 skill, GitHub public, npm publish-ə hazır.**
+**61% complete toward 85-skill vision.**
