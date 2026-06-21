@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions
+    url: https://github.com/eminazeroglu/ai-bootstrap/discussions
+    about: Questions, ideas, share-your-setup — please use Discussions first.
+  - name: Security vulnerabilities
+    url: https://github.com/eminazeroglu/ai-bootstrap/security/advisories/new
+    about: Report security issues PRIVATELY via GitHub Security Advisories. Do not open a public issue.

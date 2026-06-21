@@ -1,0 +1,92 @@
+name: Release
+
+# Triggered when a v* tag is pushed (e.g. `git push origin v0.3.0`).
+# Runs the full test matrix, then publishes to npm with provenance.
+#
+# Setup required (one-time, by repo owner):
+#   1. Generate npm automation token: https://www.npmjs.com/settings/<username>/tokens
+#      Type: "Automation" (publish + bypass 2FA)
+#   2. Add to GitHub repo: Settings → Secrets → Actions → New repository secret
+#      Name: NPM_TOKEN  Value: <token>
+#   3. Push a tag: `git tag -a v0.3.0 -m "..." && git push origin v0.3.0`
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # gh release create / upload assets
+  id-token: write   # npm provenance via OIDC
+
+jobs:
+  verify:
+    name: Verify before publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Tag matches package.json version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION="$(node -p "require('./packages/cli/package.json').version")"
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag $TAG_VERSION != package.json $PKG_VERSION"
+            exit 1
+          fi
+          echo "✓ Tag matches package.json: $PKG_VERSION"
+
+      - name: Build
+        run: pnpm --filter @eminazeroglu/ai-bootstrap build
+
+      - name: Smoke tests
+        run: pnpm --filter @eminazeroglu/ai-bootstrap test:smoke
+
+      - name: E2E tests
+        run: pnpm --filter @eminazeroglu/ai-bootstrap test:e2e
+
+  publish:
+    name: Publish to npm
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm --filter @eminazeroglu/ai-bootstrap build
+
+      - name: Copy templates into cli pkg
+        working-directory: packages/cli
+        run: node scripts/copy-templates.mjs
+
+      - name: Publish (with provenance)
+        working-directory: packages/cli
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

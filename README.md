@@ -1,80 +1,133 @@
 # ai-bootstrap
 
-> Personal AI infrastructure bootstrap for Claude Code — one command, every project, every machine.
+> One command. Every project. Every machine. Claude Code remembers everything.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg)](https://www.typescriptlang.org/)
-[![Status](https://img.shields.io/badge/Status-Mərhələ_C-orange.svg)](docs/PROPOSAL.md)
-[![GitHub](https://img.shields.io/badge/GitHub-eminazeroglu%2Fai--bootstrap-181717?logo=github)](https://github.com/eminazeroglu/ai-bootstrap)
+[![npm](https://img.shields.io/npm/v/@eminazeroglu/ai-bootstrap.svg?logo=npm&label=npm)](https://www.npmjs.com/package/@eminazeroglu/ai-bootstrap)
+[![CI](https://img.shields.io/github/actions/workflow/status/eminazeroglu/ai-bootstrap/ci.yml?branch=main&label=CI&logo=github)](https://github.com/eminazeroglu/ai-bootstrap/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/eminazeroglu/ai-bootstrap?logo=github&label=release)](https://github.com/eminazeroglu/ai-bootstrap/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Node ≥22](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tests](https://img.shields.io/badge/tests-124%20passing-brightgreen)](./packages/cli/tests)
 
-**Status**: 🟢 Mərhələ A + B + C-2/3/4 done — CLI tested, TypeScript builds clean, 12 commits, public on GitHub.
-
-## What is this?
-
-`ai-bootstrap` is an open-source, npm-distributed bootstrap kit that turns any computer into a fully-equipped Claude Code workstation in one command:
+## Quick start
 
 ```bash
-npx ai-bootstrap init
+npx @eminazeroglu/ai-bootstrap
 ```
 
-It walks you through an interactive setup wizard, asks permission to scan your projects, builds your AI profile, installs essential MCP servers, configures specialized skills + agents, and sets up cross-project memory — all backed up to GitHub.
+Interactive 6-step wizard installs **85+ skills, 75+ agents, 63 MCP servers**
+into `~/.claude/`, hooks up cross-project memory, and (optionally) backs the
+whole thing up to a private git repo.
 
-## Vision
+## What you get
+
+| Layer | What it does |
+|---|---|
+| **CLAUDE.md** | Universal rules loaded every session |
+| **~/.claude/knowledge/** | Cross-project markdown memory |
+| **learning-keeper skill** | Auto-captures corrections, promotes project knowledge to universal |
+| **85+ skills** | Foundation, Product, Marketing, Social, Creator, Graphic Design, Coaching, Productivity, Engineering, C-Level, Verticals |
+| **75+ agents** | SEO suite (18), Engineering (14), C-Level mirrors (10), Vertical specialists (8), Social orchestrators (5), Product team (5) |
+| **63 MCP servers** | github, postgres, supabase, notion, slack, atlassian, gmail, twilio, sendgrid, spotify, kubernetes, ElevenLabs, OpenAI, ... — all with verified install commands |
+
+## Architecture
+
+```
+┌──────────────────────────────────────────┐
+│  Layer 1: ~/.claude/CLAUDE.md            │  ← universal rules, every session
+└──────────────────────────────────────────┘
+                ↑ promote
+┌──────────────────────────────────────────┐
+│  Layer 2: ~/.claude/knowledge/           │  ← cross-project memory
+└──────────────────────────────────────────┘
+                ↑ auto-write
+┌──────────────────────────────────────────┐
+│  Layer 3: learning-keeper skill          │  ← captures corrections
+└──────────────────────────────────────────┘
+```
+
+## Commands
+
+```bash
+ai-bootstrap                  # Interactive 6-step setup wizard
+ai-bootstrap update           # Re-sync skills + agents from latest bundle
+ai-bootstrap doctor           # Diagnose install health
+ai-bootstrap mcp list         # List 63 available MCP servers
+ai-bootstrap mcp credentials  # Interactively fill MCP credentials
+ai-bootstrap backup init      # Set up git backup of ~/.claude/
+ai-bootstrap backup sync      # Commit + push current state
+ai-bootstrap backup pull      # Restore on a new machine
+ai-bootstrap telemetry on     # Opt in to anonymous usage data (default off)
+```
+
+See the [CLI README](./packages/cli/README.md) for the full reference.
+
+## Bundles
+
+Pick the bundle that matches what you do:
+
+| Bundle | Skills | Agents | Best for |
+|---|---|---|---|
+| `foundation` | 10 | 2 | Minimal — try it out |
+| `developer` | 21 | 18 | Engineering work |
+| `marketer` | 24 | 29 | SEO + social + growth |
+| `creator` | 26 | 13 | Video, music, storyboard |
+| `founder` | 35 | 38 | C-Level advisory + product + marketing |
+| `full-stack` | 52+ | 75+ | Everything |
+
+## Why this exists
 
 When you sit at a new computer and run one command, Claude Code remembers:
-- Who you are (profile)
-- Every project you work on
-- Every skill, agent, MCP you use
-- Every decision, mistake, and learning across sessions
+
+- Who you are (profile + goals)
+- Every project you work on (catalog with CLAUDE.md detection)
+- Every skill, agent, MCP you use (installed + tracked)
+- Every decision, mistake, and learning (knowledge layer + learning-keeper)
 
 No re-explanation. No re-configuration. Just continuity.
 
-## How it works (3 layers)
+## Project layout
 
 ```
-┌──────────────────────────────────────────┐
-│  Layer 1: CLAUDE.md (universal rules)    │
-│  Auto-loaded in every session             │
-└──────────────────────────────────────────┘
-              ↑ promote
-┌──────────────────────────────────────────┐
-│  Layer 2: ~/.claude/knowledge/            │
-│  Cross-project memory (markdown + git)    │
-└──────────────────────────────────────────┘
-              ↑ auto-write
-┌──────────────────────────────────────────┐
-│  Layer 3: learning-keeper skill           │
-│  Auto-captures corrections, builds rules  │
-└──────────────────────────────────────────┘
+ai-bootstrap/
+├── packages/
+│   ├── cli/                  # Published npm package
+│   │   ├── src/{applier,commands,steps,utils}/
+│   │   ├── bin/init.js       # npm bin entry
+│   │   └── tests/            # 124 tests (81 smoke + 43 e2e)
+│   └── templates/            # Source skills + agents + home/
+├── .github/
+│   ├── workflows/            # CI + auto-publish on tag
+│   └── ISSUE_TEMPLATE/
+├── docs/                     # Proposal, decisions, publishing notes
+└── README.md
 ```
 
-## What's in it
+## Privacy + safety
 
-- **5 project presets** — SaaS Fullstack, SaaS AI, AI Studio, Brand Site, Social Ops, Data Platform
-- **~85 specialized skills** in 10 tiers (foundation, marketing, creator, business, ...)
-- **~75 subagents** in 10 tiers (code-reviewer, SEO orchestrator, C-level advisors, ...)
-- **~80 MCP servers** in 15 categories (auto-installed with bundle selection)
-- **Interactive setup wizard** — first-run permission gates, profile builder, project scanner
+- **Telemetry**: strict opt-in, OFF by default. No data leaves your machine
+  unless you opt in AND set `AI_BOOTSTRAP_TELEMETRY_URL` to a collector.
+- **Credentials**: MCP keys live in `~/.ai-bootstrap.env` with `chmod 600` —
+  never committed by `backup`, never embedded in `~/.claude.json`.
+- **Backup**: refuses public repos. Uses your existing git auth (gh / SSH /
+  credential helper) — ai-bootstrap does not store tokens.
+- **Verified packages only**: every MCP catalog entry attributes its source
+  (`official: X` or `community: GitHub/owner`). No fabricated package names.
 
-## Locked Architectural Decisions (Mərhələ A son)
+See [SECURITY.md](./SECURITY.md) for the full threat model + disclosure process.
 
-1. **Project name**: `ai-bootstrap`
-2. **License**: MIT — fork, modify, distribute freely
-3. **Vertical specialists**: All auto-installed (legal, medical, finance, education, e-commerce, real-estate)
-4. **C-Level advisors**: All 10 auto-installed (CEO, CTO, CFO, CMO, COO, CRO, CHRO, CISO, GC, Founder-mode)
-5. **Memory storage**: Markdown files + git (simple, human-readable, portable)
-6. **Multilingual**: Universal `multilingual-copywriter` skill + language knowledge files (`languages/{az,ru,en,tr,es}.md`)
+## Contributing
+
+PRs welcome — start with [CONTRIBUTING.md](./CONTRIBUTING.md). For non-trivial
+changes please open an issue first to align on the approach.
 
 ## License
 
-MIT — fork, modify, distribute. Community contributions welcome.
+[MIT](./LICENSE) — fork, modify, distribute freely.
 
-## Status
+## Author
 
-See [docs/PROPOSAL.md](docs/PROPOSAL.md) for the complete research synthesis and roadmap.
-See [docs/DECISIONS.md](docs/DECISIONS.md) for the locked architectural decisions.
+Built by [Emin Azəroğlu](https://github.com/eminazeroglu) ([@azerogluemin_ai](https://instagram.com/azerogluemin_ai)).
 
----
-
-**Author**: Emin Azəroğlu ([@azerogluemin](https://github.com/eminazeroglu))
-**Built with**: Claude Code, AZ language as first-class citizen
+Built with Claude Code, Azerbaijani as a first-class language.

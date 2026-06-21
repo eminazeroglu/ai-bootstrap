@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test on Node ${{ matrix.node }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [22, 24]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm --filter @eminazeroglu/ai-bootstrap typecheck
+
+      - name: Build
+        run: pnpm --filter @eminazeroglu/ai-bootstrap build
+
+      - name: Smoke tests
+        run: pnpm --filter @eminazeroglu/ai-bootstrap test:smoke
+
+      - name: E2E tests
+        run: pnpm --filter @eminazeroglu/ai-bootstrap test:e2e
+
+      - name: Pack dry-run
+        run: |
+          cd packages/cli
+          node scripts/copy-templates.mjs
+          npm pack --dry-run

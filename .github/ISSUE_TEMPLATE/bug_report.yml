@@ -1,0 +1,72 @@
+name: Bug report
+description: Something broke when using ai-bootstrap
+title: "[Bug] "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please run
+        `ai-bootstrap doctor` first and include its output.
+
+  - type: input
+    id: version
+    attributes:
+      label: ai-bootstrap version
+      description: Output of `ai-bootstrap --version`
+      placeholder: 0.2.0
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: Output of `node --version`
+      placeholder: v22.10.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - macOS
+        - Linux
+        - Windows (WSL2)
+        - Windows (native)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: describe
+    attributes:
+      label: What happened
+      description: Clear, concise description. What did you expect vs. what occurred?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `npx @eminazeroglu/ai-bootstrap`
+        2. Pick "developer" bundle
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `ai-bootstrap doctor`
+      render: shell
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / stack traces
+      render: shell

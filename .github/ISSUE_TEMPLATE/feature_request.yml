@@ -1,0 +1,47 @@
+name: Feature request
+description: Propose a new skill, agent, MCP, or CLI capability
+title: "[Feature] "
+labels: [enhancement, triage]
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - New skill
+        - New agent
+        - New MCP server in catalog
+        - New CLI subcommand
+        - New bundle
+        - Improvement to existing
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What pain point does this solve? Who has it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the user experience look like? CLI commands, files written, behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you weigh? Why is this approach better?
+
+  - type: textarea
+    id: refs
+    attributes:
+      label: References
+      description: Links to docs, packages, related tools, prior art.
