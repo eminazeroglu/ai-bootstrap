@@ -5,6 +5,81 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-06-21
+
+Preset-based project bootstrap — folder scaffolding + CLAUDE.md per preset.
+
+### Added — 8 new production skills
+
+Real production-quality content (~150-280 lines each, with sources):
+
+Dev specialists:
+- `frontend-developer` — React 19/Next 16/Vue 3/Svelte 5, state mgmt, performance, WCAG 2.2, testing
+- `backend-developer` — REST/GraphQL, NestJS/Hono/FastAPI, multi-tenant, OWASP, caching, queues
+- `devops-developer` — Docker, K8s, CI/CD, IaC, secrets, monitoring, SLOs
+- `mobile-developer` — React Native (New Arch), Flutter, native iOS/Android, offline sync
+
+Film production specialists:
+- `editor` — Cut grammar, J/L cuts, vertical pacing, sound editing, Resolve/Premiere/FCP/CapCut
+- `colorist` — Scopes (waveform/vector/parade), LUT design, Pixar/Wong Kar-wai/Deakins/A24 looks
+- `art-director` — Visual treatment, mood board, palette per scene/character, era research (AZ-specific)
+- `cinematographer` — Camera/lens/light decision trees, Deakins/Lubezki/Fraser craft
+
+### Added — 3 project presets
+
+Replaces bundle abstraction in user-facing CLI. Each preset includes
+folder structure + CLAUDE.md template + skill+agent install list + MCP suggestions.
+
+**SaaS Development** (~58 skills, ~50 agents, ~22 MCPs)
+- Folders: \`apps/{web,api,admin}\`, \`packages/{ui,db,shared}\`, \`docs/00-27\`, \`infra/\`, \`scripts/\`
+- CLAUDE.md rules: TS strict, multi-tenant, JWT+refresh, OWASP, decisions-log append-only
+- 28 numbered docs scaffolded (00-claude-code-guide → 27-go-live-runbook)
+
+**Social Page** (~44 skills, ~22 agents, ~21 MCPs)
+- Folders: \`strategy/\`, \`calendar/\`, \`days/YYYY-MM-DD/{characters,shots,video,music,thumbnail,final}\`,
+  \`prompts-library/\`, \`assets/\`, \`analytics/\`
+- CLAUDE.md rules: **Prompt-first** (vizual təsdiqsiz fayl qadağa), daily folder isolation
+- Strategy MD skeletons: brand-guide, content-pillars, audience-personas, competitors
+
+**AI Studio** (~34 skills, ~11 agents, ~14 MCPs)
+- Folders: \`projects/<client>/{brief,characters,locations,shots,video,music}\`,
+  \`days/YYYY-MM-DD/\`, \`references/{pixar-style,cinematography,color-grading}\`,
+  \`prompts-library/\`
+- CLAUDE.md rules: Prompt-first, style refs before prompt, file naming convention
+- NO social platform skills/MCPs (studio doesn't publish)
+
+### Changed — `ai-bootstrap new` is now preset-based
+
+Previous (v0.5.0): multi-select bundle checkbox
+New (v0.6.0): single-select preset → 3 questions only:
+1. Layihə adı?
+2. Bu qovluqda nə qurmaq istəyirsən? (SaaS / Social Page / AI Studio)
+3. Qısa təsvir?
+
+After selection: skills+agents symlinked from pool, MCPs auto-suggested,
+folder structure scaffolded, CLAUDE.md written with preset-specific rules.
+
+### Architecture
+
+- New: \`packages/cli/src/applier/preset-definitions.ts\` — 3 preset metadata
+- New: \`packages/cli/src/applier/preset-scaffolder.ts\` — folder scaffolder per preset
+- Bundles still exist internally (\`resolvePlan\`, \`SKILL_BUNDLES\`, \`AGENT_BUNDLES\`)
+  but no longer surface to users — presets replaced them
+- Project state schema bumped to v2.0: \`{ preset, name, description, createdAt }\`
+
+### Tests
+
+- 176 passing (was 142): 121 smoke + 55 e2e
+- New: 30+ preset definition assertions (skill counts, MCP presence, preset uniqueness)
+- New: 11 scaffolder assertions (SaaS 28 docs, Social strategy MDs, AI Studio refs)
+
+### Migration
+
+- v0.5.0 projects (multi-bundle): continue to work; new \`ai-bootstrap new\` writes preset state
+- Old multi-bundle CLAUDE.md template still readable; project state v2.0 backward compat
+
+[0.6.0]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.6.0
+
 ## [0.5.0] — 2026-06-21
 
 Big architectural + UX redesign from real-world test feedback.

@@ -46,6 +46,8 @@ const { writeMcpConfig } = await import('../dist/applier/mcp-config.js');
 const { installSkills } = await import('../dist/applier/skills-installer.js');
 const { installAgents } = await import('../dist/applier/agents-installer.js');
 const { resolvePlan, SKILL_BUNDLES, AGENT_BUNDLES } = await import('../dist/applier/bundle-definitions.js');
+const { PRESETS, getPreset, listPresets } = await import('../dist/applier/preset-definitions.js');
+const { scaffoldPreset } = await import('../dist/applier/preset-scaffolder.js');
 
 // ════ Test 1: profile-writer ════
 describe('profile-writer', () => {
@@ -240,6 +242,65 @@ describe('agents-installer', () => {
   const agentsDir = join(mockHome, '.claude', 'agents');
   assert('code-reviewer dir exists', existsSync(join(agentsDir, 'code-reviewer')));
   assert('code-reviewer AGENT.md copied', existsSync(join(agentsDir, 'code-reviewer', 'AGENT.md')));
+});
+
+// ════ Test 7.5: preset definitions (v0.6.0) ════
+describe('preset definitions', () => {
+  assert('3 presets total', Object.keys(PRESETS).length === 3);
+  assert('SaaS preset exists', getPreset('saas-development') !== undefined);
+  assert('Social Page preset exists', getPreset('social-page') !== undefined);
+  assert('AI Studio preset exists', getPreset('ai-studio') !== undefined);
+
+  const saas = getPreset('saas-development');
+  assert('SaaS has 50+ skills', saas.skills.length >= 50);
+  assert('SaaS includes frontend-developer (v0.6.0 new)', saas.skills.includes('frontend-developer'));
+  assert('SaaS includes backend-developer', saas.skills.includes('backend-developer'));
+  assert('SaaS includes devops-developer', saas.skills.includes('devops-developer'));
+  assert('SaaS includes mobile-developer', saas.skills.includes('mobile-developer'));
+  assert('SaaS has 18 SEO agents', saas.agents.filter((a) => a.startsWith('seo-')).length === 18);
+  assert('SaaS suggests postgres MCP', saas.mcps.includes('postgres'));
+  assert('SaaS suggests stripe MCP', saas.mcps.includes('stripe'));
+
+  const social = getPreset('social-page');
+  assert('Social Page has 40+ skills', social.skills.length >= 40);
+  assert('Social Page includes instagram-expert', social.skills.includes('instagram-expert'));
+  assert('Social Page includes editor (v0.6.0 new)', social.skills.includes('editor'));
+  assert('Social Page includes colorist', social.skills.includes('colorist'));
+  assert('Social Page includes cinematographer', social.skills.includes('cinematographer'));
+  assert('Social Page suggests instagram MCP', social.mcps.includes('instagram'));
+
+  const studio = getPreset('ai-studio');
+  assert('AI Studio has 30+ skills', studio.skills.length >= 30);
+  assert('AI Studio includes art-director (v0.6.0 new)', studio.skills.includes('art-director'));
+  assert('AI Studio NO social platform skills', !studio.skills.includes('instagram-expert'));
+  assert('AI Studio NO social platform MCPs', !studio.mcps.includes('instagram'));
+});
+
+// ════ Test 7.6: preset scaffolder (v0.6.0) ════
+describe('preset scaffolder', () => {
+  // SaaS scaffold
+  const saasDir = mkdtempSync(join(tmpdir(), 'ab-scaffold-saas-'));
+  const saasResult = scaffoldPreset('saas-development', { cwd: saasDir, projectName: 'test-saas', description: 'Test SaaS' });
+  assert('SaaS scaffold creates folders', saasResult.foldersCreated.length > 0);
+  assert('SaaS scaffold writes docs', saasResult.filesWritten.some((f) => f.startsWith('docs/')));
+  assert('SaaS scaffold writes CLAUDE.md', saasResult.filesWritten.includes('CLAUDE.md'));
+  assert('SaaS scaffold writes 28 numbered docs', saasResult.filesWritten.filter((f) => f.startsWith('docs/') && /^docs\/\d{2}-/.test(f)).length === 28);
+
+  // Social Page scaffold
+  const socialDir = mkdtempSync(join(tmpdir(), 'ab-scaffold-social-'));
+  const socialResult = scaffoldPreset('social-page', { cwd: socialDir, projectName: 'test-social', description: 'Test brand' });
+  assert('Social scaffold creates strategy/', socialResult.foldersCreated.some((f) => f === 'strategy'));
+  assert('Social scaffold creates calendar/', socialResult.foldersCreated.includes('calendar'));
+  assert('Social scaffold creates today daily folders', socialResult.foldersCreated.some((f) => f.startsWith('days/') && f.includes('characters')));
+  assert('Social scaffold creates prompts-library/', socialResult.foldersCreated.some((f) => f.startsWith('prompts-library/')));
+  assert('Social scaffold writes brand-guide.md', socialResult.filesWritten.includes('strategy/brand-guide.md'));
+
+  // AI Studio scaffold
+  const studioDir = mkdtempSync(join(tmpdir(), 'ab-scaffold-studio-'));
+  const studioResult = scaffoldPreset('ai-studio', { cwd: studioDir, projectName: 'test-studio', description: 'Test studio' });
+  assert('Studio scaffold creates projects/', studioResult.foldersCreated.includes('projects'));
+  assert('Studio scaffold creates references/', studioResult.foldersCreated.some((f) => f.startsWith('references/')));
+  assert('Studio scaffold writes CLAUDE.md', studioResult.filesWritten.includes('CLAUDE.md'));
 });
 
 // ════ Test 8: project-scope install (v0.3.0) ════
