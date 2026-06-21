@@ -242,6 +242,26 @@ describe('agents-installer', () => {
   assert('code-reviewer AGENT.md copied', existsSync(join(agentsDir, 'code-reviewer', 'AGENT.md')));
 });
 
+// ════ Test 8: project-scope install (v0.3.0) ════
+describe('project-scope install', () => {
+  const projectDir = join(mockHome, 'test-project');
+  const projectSkillsDir = join(projectDir, '.claude', 'skills');
+  const projectAgentsDir = join(projectDir, '.claude', 'agents');
+
+  const skillRes = installSkills(['simplify', 'verify'], projectSkillsDir);
+  assert('installs to project skills dir', skillRes.installed.length === 2);
+  assert('simplify in project scope', existsSync(join(projectSkillsDir, 'simplify', 'SKILL.md')));
+  assert('verify in project scope', existsSync(join(projectSkillsDir, 'verify', 'SKILL.md')));
+
+  const agentRes = installAgents(['researcher'], projectAgentsDir);
+  assert('agents install to project scope', agentRes.installed.length === 1);
+  assert('researcher in project scope', existsSync(join(projectAgentsDir, 'researcher', 'AGENT.md')));
+
+  // User-scope NOT affected by project-scope install
+  const userSkillsDir = join(mockHome, '.claude', 'skills');
+  assert('user-scope skills/simplify not created by project install', !existsSync(join(userSkillsDir, 'simplify')));
+});
+
 // ════ Cleanup ════
 rmSync(mockHome, { recursive: true, force: true });
 console.log(`\n${YELLOW}Cleanup:${RESET} Mock HOME silindi`);

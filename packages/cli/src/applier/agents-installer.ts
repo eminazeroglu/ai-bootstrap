@@ -29,14 +29,23 @@ export interface AgentInstallResult {
   errors: { agent: string; error: string }[];
 }
 
-export function installAgents(agentNames: string[]): AgentInstallResult {
+/**
+ * Install agents into a target agents directory.
+ * @param agentNames List of agent IDs to install
+ * @param targetAgentsDir Absolute path. Default `~/.claude/agents/`; pass
+ *                       `<project>/.claude/agents/` for project-scope.
+ */
+export function installAgents(
+  agentNames: string[],
+  targetAgentsDir: string = AGENTS_DIR,
+): AgentInstallResult {
   const result: AgentInstallResult = {
     installed: [],
     skipped: [],
     errors: [],
   };
 
-  ensureDir(AGENTS_DIR);
+  ensureDir(targetAgentsDir);
   const templatesDir = templatesAgentsPath();
 
   if (!existsSync(templatesDir)) {
@@ -51,7 +60,7 @@ export function installAgents(agentNames: string[]): AgentInstallResult {
 
   for (const name of agentNames) {
     const sourceDir = join(templatesDir, name);
-    const targetDir = join(AGENTS_DIR, name);
+    const targetDir = join(targetAgentsDir, name);
 
     if (!existsSync(sourceDir)) {
       result.skipped.push({

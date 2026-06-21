@@ -14,6 +14,7 @@ import { runDoctor } from './commands/doctor.js';
 import { runUpdate, saveState } from './commands/update.js';
 import { runBackupCommand } from './commands/backup.js';
 import { runTelemetryCommand } from './commands/telemetry.js';
+import { runNewCommand } from './commands/new.js';
 import { trackEvent } from './utils/telemetry.js';
 
 async function runDefaultWizard(): Promise<void> {
@@ -59,7 +60,8 @@ function printHelp(): void {
 ${chalk.bold('ai-bootstrap')} — Claude Code personal AI infrastructure
 
 ${chalk.bold('Usage:')}
-  ${chalk.cyan('ai-bootstrap')}                  Interactive 6-step setup wizard
+  ${chalk.cyan('ai-bootstrap')}                  Interactive 6-step user-scope setup wizard
+  ${chalk.cyan('ai-bootstrap new')}               Bootstrap THIS folder (project-scope skills+agents)
   ${chalk.cyan('ai-bootstrap update')}            Re-sync skills + agents from template bundle
   ${chalk.cyan('ai-bootstrap doctor')}            Diagnose install health (symlinks, MCPs, creds)
   ${chalk.cyan('ai-bootstrap mcp <sub>')}         MCP management — list, installed, credentials
@@ -109,6 +111,11 @@ async function main(): Promise<void> {
   if (cmd === 'backup') {
     void trackEvent({ event: 'backup', properties: { sub: args[1] ?? 'help' } });
     return runBackupCommand(args.slice(1));
+  }
+
+  if (cmd === 'new') {
+    void trackEvent({ event: 'new' });
+    return runNewCommand(args.slice(1));
   }
 
   if (cmd === 'telemetry') {

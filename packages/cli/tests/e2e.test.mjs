@@ -73,7 +73,8 @@ describe('--version', () => {
 describe('--help', () => {
   const r = runCli(['--help']);
   assert('exit 0', r.exitCode === 0);
-  assert('lists default wizard', r.stdout.includes('Interactive 6-step setup wizard'));
+  assert('lists default wizard', r.stdout.includes('Interactive 6-step user-scope setup wizard'));
+  assert('lists new (project-scope)', r.stdout.includes('ai-bootstrap new'));
   assert('lists update', r.stdout.includes('ai-bootstrap update'));
   assert('lists doctor', r.stdout.includes('ai-bootstrap doctor'));
   assert('lists mcp', r.stdout.includes('ai-bootstrap mcp'));

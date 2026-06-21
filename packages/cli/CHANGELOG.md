@@ -5,6 +5,73 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-06-21
+
+Project-scope skills + agents — different bundles per project.
+
+### Added
+
+- **`ai-bootstrap new` subcommand** — bootstrap any folder as a project:
+  1. Ask the project name (defaults to folder name)
+  2. Ask "what is this project?" with 9 intent choices that auto-map to a bundle:
+     - SaaS / Fullstack → developer
+     - AI Creator content → creator
+     - Marketing / SMM → marketer
+     - Mobile app → developer
+     - Data analysis / dashboard → developer
+     - Client agency work → full-stack
+     - Startup / founder → founder
+     - Open source library → developer
+     - Just basics → foundation
+  3. Allow bundle override
+  4. Ask for 1-2 sentence project description (goes into CLAUDE.md)
+  5. Allow custom project-specific rules
+  6. Install skills to `<project>/.claude/skills/` (PROJECT scope)
+  7. Install agents to `<project>/.claude/agents/` (PROJECT scope)
+  8. Write `<project>/CLAUDE.md` with project metadata + bundle reference
+  9. Save state to `<project>/.claude/ai-bootstrap-project.json`
+
+### Why this matters
+
+Previously, ai-bootstrap installed ONE bundle globally (`~/.claude/`). Every
+project saw the same skill set. Real users have multiple identities — AI
+creator on Monday, full-stack dev on Tuesday, marketer on Wednesday — and
+need different skills per project.
+
+Claude Code's project-scope skills (`<project>/.claude/skills/`) load ONLY
+when working inside that project. This gives you the right tools per context
+without polluting every session.
+
+### Changed
+
+- `installSkills(names, targetDir?)` — second arg defaults to `~/.claude/skills/`
+  for backward compat; project install passes `<project>/.claude/skills/`
+- `installAgents(names, targetDir?)` — same pattern
+- Help text reorganized: user-scope wizard vs project-scope `new`
+
+### Testing
+
+- New smoke test: 'project-scope install' — verifies skills install to
+  project dir, user-scope dir NOT affected
+- E2E test updated for help text changes
+- 127 tests passing (was 124)
+
+### Workflow
+
+```bash
+# Once per machine — universal foundation:
+npx @azerogluemin/ai-bootstrap   # picks foundation/minimal user-scope
+
+# Then per project:
+cd ~/Projects/my-saas && ai-bootstrap new     # → developer bundle
+cd ~/Projects/azerogluemin-content && ai-bootstrap new   # → creator bundle
+cd ~/Clients/restaurant-smm && ai-bootstrap new   # → marketer bundle
+```
+
+Each project sees only its own bundle. No skill pollution.
+
+[0.3.0]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.3.0
+
 ## [0.2.2] — 2026-06-21
 
 User-autonomy fixes from first real-world test feedback.

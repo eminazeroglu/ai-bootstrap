@@ -41,14 +41,23 @@ export interface SkillInstallResult {
   errors: { skill: string; error: string }[];
 }
 
-export function installSkills(skillNames: string[]): SkillInstallResult {
+/**
+ * Install skills into a target skills directory.
+ * @param skillNames List of skill IDs to install
+ * @param targetSkillsDir Absolute path to the skills directory (default: `~/.claude/skills/`).
+ *                       Pass `<project>/.claude/skills/` for project-scope installation.
+ */
+export function installSkills(
+  skillNames: string[],
+  targetSkillsDir: string = SKILLS_DIR,
+): SkillInstallResult {
   const result: SkillInstallResult = {
     installed: [],
     skipped: [],
     errors: [],
   };
 
-  ensureDir(SKILLS_DIR);
+  ensureDir(targetSkillsDir);
   const templatesDir = templatesSkillsPath();
 
   if (!existsSync(templatesDir)) {
@@ -63,7 +72,7 @@ export function installSkills(skillNames: string[]): SkillInstallResult {
 
   for (const name of skillNames) {
     const sourceDir = join(templatesDir, name);
-    const targetDir = join(SKILLS_DIR, name);
+    const targetDir = join(targetSkillsDir, name);
 
     // Check source exists
     if (!existsSync(sourceDir)) {
