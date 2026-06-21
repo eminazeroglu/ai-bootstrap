@@ -13,8 +13,8 @@ Trivial fixes (typos, dependency bumps) can skip Test plan.
 
 ## Test plan
 
-- [ ] `pnpm --filter @eminazeroglu/ai-bootstrap typecheck` passes
-- [ ] `pnpm --filter @eminazeroglu/ai-bootstrap test` passes (smoke + e2e)
+- [ ] `pnpm --filter @azerogluemin/ai-bootstrap typecheck` passes
+- [ ] `pnpm --filter @azerogluemin/ai-bootstrap test` passes (smoke + e2e)
 - [ ] Manual sanity: `HOME=/tmp/ab-prtest node packages/cli/bin/init.js <relevant-command>`
 - [ ] Updated CHANGELOG.md if user-visible
 

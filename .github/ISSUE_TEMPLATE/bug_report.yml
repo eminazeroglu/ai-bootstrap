@@ -53,7 +53,7 @@ body:
     attributes:
       label: Steps to reproduce
       placeholder: |
-        1. Run `npx @eminazeroglu/ai-bootstrap`
+        1. Run `npx @azerogluemin/ai-bootstrap`
         2. Pick "developer" bundle
         3. ...
     validations:

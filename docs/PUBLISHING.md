@@ -34,7 +34,7 @@ Bu sənəd `ai-bootstrap` paketini npm registry-ə publish etmək üçün addım
    ```
 
    Əgər `ai-bootstrap` artıq tutulubsa, alternativ adlar:
-   - `@eminazeroglu/ai-bootstrap` (scoped — yalnız sənin account-da)
+   - `@azerogluemin/ai-bootstrap` (scoped — yalnız sənin account-da)
    - `claude-bootstrap`
    - `claude-ai-bootstrap`
 
@@ -135,7 +135,7 @@ npm deprecate ai-bootstrap@0.0.1 "Use 0.0.2 instead — bug fix"
 ## Distribution channels
 
 1. **npm registry** (default): `https://www.npmjs.com/package/ai-bootstrap`
-2. **GitHub Packages** (alternative): `npm install --registry=https://npm.pkg.github.com @eminazeroglu/ai-bootstrap`
+2. **GitHub Packages** (alternative): `npm install --registry=https://npm.pkg.github.com @azerogluemin/ai-bootstrap`
 3. **Direct from GitHub**: `npm install github:eminazeroglu/ai-bootstrap`
 
 ## Post-publish actions
@@ -150,7 +150,7 @@ npm deprecate ai-bootstrap@0.0.1 "Use 0.0.2 instead — bug fix"
 
 ### "Package name too similar to existing package"
 - npm bəzən adları reject edir oxşar paketlər üçün
-- Solution: scoped package istifadə et — `@eminazeroglu/ai-bootstrap`
+- Solution: scoped package istifadə et — `@azerogluemin/ai-bootstrap`
 
 ### "EAUTH" — authentication failed
 - `npm login` yenidən edə

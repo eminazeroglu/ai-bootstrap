@@ -1,4 +1,4 @@
-# @eminazeroglu/ai-bootstrap
+# @azerogluemin/ai-bootstrap
 
 > Personal AI infrastructure bootstrap for Claude Code — one command sets up skills, agents, MCPs, and cross-project memory.
 
@@ -10,7 +10,7 @@
 ## Quick start
 
 ```bash
-npx @eminazeroglu/ai-bootstrap
+npx @azerogluemin/ai-bootstrap
 ```
 
 Interactive 6-step setup:
@@ -121,8 +121,8 @@ git clone https://github.com/eminazeroglu/ai-bootstrap.git
 cd ai-bootstrap
 
 pnpm install                   # install monorepo deps
-pnpm --filter @eminazeroglu/ai-bootstrap build
-pnpm --filter @eminazeroglu/ai-bootstrap test    # runs 124 tests (81 smoke + 43 e2e)
+pnpm --filter @azerogluemin/ai-bootstrap build
+pnpm --filter @azerogluemin/ai-bootstrap test    # runs 124 tests (81 smoke + 43 e2e)
 
 # Run locally without npx
 node packages/cli/bin/init.js
@@ -143,4 +143,4 @@ Built by [Emin Azəroğlu](https://github.com/eminazeroglu) ([@azerogluemin_ai](
 
 - [GitHub repo](https://github.com/eminazeroglu/ai-bootstrap)
 - [Issues](https://github.com/eminazeroglu/ai-bootstrap/issues)
-- [npm](https://www.npmjs.com/package/@eminazeroglu/ai-bootstrap)
+- [npm](https://www.npmjs.com/package/@azerogluemin/ai-bootstrap)

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Copy ../templates/{skills,agents,home} into ./templates/ for npm publish.
 //
-// Runs before `npm pack` / `npm publish` so the published @eminazeroglu/ai-bootstrap
+// Runs before `npm pack` / `npm publish` so the published @azerogluemin/ai-bootstrap
 // tarball contains all skill + agent template directories self-contained.
 //
 // Idempotent: removes existing ./templates before copying.

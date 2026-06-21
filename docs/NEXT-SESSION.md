@@ -14,7 +14,7 @@ status: v0.0.1 publish-ready (manual npm publish gözlənilir) — sonra v0.1.0 
 ## 🌐 LIVE
 
 **GitHub**: https://github.com/eminazeroglu/ai-bootstrap (public, MIT)
-**npm package adı**: `@eminazeroglu/ai-bootstrap` (scoped, sərbəst, hazırdır)
+**npm package adı**: `@azerogluemin/ai-bootstrap` (scoped, sərbəst, hazırdır)
 **Lokal**: `~/MyJobs/ai-bootstrap/`
 **Owner**: Emin Azəroğlu (@eminazeroglu)
 
@@ -64,7 +64,7 @@ home/CLAUDE.md-də 8 foundation rule. Ümumi:
 | **Lines total** | **~15,000+** |
 | TS build | ✅ sıfır xəta |
 | GitHub | ✅ public |
-| npm name | `@eminazeroglu/ai-bootstrap` (reserved) |
+| npm name | `@azerogluemin/ai-bootstrap` (reserved) |
 
 ## 🎯 52 Production Skills
 
@@ -111,14 +111,14 @@ npm publish --dry-run
 npm publish --access public
 
 # 5. Verify on npm
-npm view @eminazeroglu/ai-bootstrap
+npm view @azerogluemin/ai-bootstrap
 
 # 6. Test global install
-npm install -g @eminazeroglu/ai-bootstrap
+npm install -g @azerogluemin/ai-bootstrap
 ai-bootstrap
 
 # 7. Test npx (no install)
-npx @eminazeroglu/ai-bootstrap
+npx @azerogluemin/ai-bootstrap
 ```
 
 PUBLISHING.md-də tam guide var.

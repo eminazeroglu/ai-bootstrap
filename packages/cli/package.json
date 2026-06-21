@@ -1,5 +1,5 @@
 {
-  "name": "@eminazeroglu/ai-bootstrap",
+  "name": "@azerogluemin/ai-bootstrap",
   "version": "0.2.1",
   "description": "Personal AI infrastructure bootstrap for Claude Code — interactive setup wizard with skills, agents, MCPs, and cross-project memory",
   "type": "module",

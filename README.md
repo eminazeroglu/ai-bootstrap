@@ -2,7 +2,7 @@
 
 > One command. Every project. Every machine. Claude Code remembers everything.
 
-[![npm](https://img.shields.io/npm/v/@eminazeroglu/ai-bootstrap.svg?logo=npm&label=npm)](https://www.npmjs.com/package/@eminazeroglu/ai-bootstrap)
+[![npm](https://img.shields.io/npm/v/@azerogluemin/ai-bootstrap.svg?logo=npm&label=npm)](https://www.npmjs.com/package/@azerogluemin/ai-bootstrap)
 [![Release](https://img.shields.io/github/v/release/eminazeroglu/ai-bootstrap?logo=github&label=release)](https://github.com/eminazeroglu/ai-bootstrap/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node ≥22](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -12,7 +12,7 @@
 ## Quick start
 
 ```bash
-npx @eminazeroglu/ai-bootstrap
+npx @azerogluemin/ai-bootstrap
 ```
 
 Interactive 6-step wizard installs **85+ skills, 75+ agents, 63 MCP servers**

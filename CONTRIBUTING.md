@@ -18,8 +18,8 @@ cd ai-bootstrap
 
 # Requires Node ≥ 22 and pnpm ≥ 11
 pnpm install
-pnpm --filter @eminazeroglu/ai-bootstrap build
-pnpm --filter @eminazeroglu/ai-bootstrap test    # 124 tests
+pnpm --filter @azerogluemin/ai-bootstrap build
+pnpm --filter @azerogluemin/ai-bootstrap test    # 124 tests
 ```
 
 ## Project layout
@@ -84,8 +84,8 @@ packages/
 ## Test before pushing
 
 ```bash
-pnpm --filter @eminazeroglu/ai-bootstrap typecheck
-pnpm --filter @eminazeroglu/ai-bootstrap test       # smoke + e2e
+pnpm --filter @azerogluemin/ai-bootstrap typecheck
+pnpm --filter @azerogluemin/ai-bootstrap test       # smoke + e2e
 ```
 
 Both must be green. Run locally before opening a PR.
