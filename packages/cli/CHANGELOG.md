@@ -5,6 +5,61 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-06-21
+
+Incremental skill + agent management — add / remove / list.
+
+### Added
+
+- **`ai-bootstrap add <names>`** — install additional skills or agents
+  - Auto-detects skill vs agent by template lookup
+  - `--bundle <name>` merges an entire bundle
+  - Auto-detects scope (project if CLAUDE.md / .claude/ in cwd, else user)
+  - `--user` / `--project` flags force scope
+- **`ai-bootstrap remove <names>` (alias: `rm`)** — uninstall skills/agents
+  - Same scope auto-detection
+  - Removes from both skills/ and agents/ if name matches both
+- **`ai-bootstrap list` (alias: `ls`)** — list installed skills/agents
+  - Current scope by default
+  - `--user`, `--project`, or `--all` flags
+  - `--all` shows user scope + current project side-by-side
+
+### Why
+
+v0.3.0 introduced `new` for project bootstrap with a single bundle. But real
+users hit edge cases:
+- Picked `developer` bundle, later need `showrunner` for a marketing page
+- Picked `creator`, later need `seo-technical` for SEO audit
+- Want to remove unused skills to reduce context noise
+
+`add` / `remove` / `list` give granular control without re-running the whole wizard.
+
+### Workflow examples
+
+```bash
+# Already have a developer-bundle project, need creator skills too:
+ai-bootstrap add showrunner character-designer image-prompt-engineer
+
+# Or merge whole creator bundle on top:
+ai-bootstrap add --bundle creator
+
+# See what's installed in this project:
+ai-bootstrap list
+
+# See user + project side by side:
+ai-bootstrap list --all
+
+# Drop a skill you don't use:
+ai-bootstrap remove security-auditor
+```
+
+### Tests
+
+- New e2e tests: add help, list empty user scope, remove non-existent graceful
+- 134 passing (was 131): 87 smoke + 47 e2e
+
+[0.4.0]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.4.0
+
 ## [0.3.0] — 2026-06-21
 
 Project-scope skills + agents — different bundles per project.

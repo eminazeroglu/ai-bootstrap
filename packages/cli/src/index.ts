@@ -15,6 +15,7 @@ import { runUpdate, saveState } from './commands/update.js';
 import { runBackupCommand } from './commands/backup.js';
 import { runTelemetryCommand } from './commands/telemetry.js';
 import { runNewCommand } from './commands/new.js';
+import { runAddCommand, runRemoveCommand, runListCommand } from './commands/skills.js';
 import { trackEvent } from './utils/telemetry.js';
 
 async function runDefaultWizard(): Promise<void> {
@@ -62,6 +63,10 @@ ${chalk.bold('ai-bootstrap')} — Claude Code personal AI infrastructure
 ${chalk.bold('Usage:')}
   ${chalk.cyan('ai-bootstrap')}                  Interactive 6-step user-scope setup wizard
   ${chalk.cyan('ai-bootstrap new')}               Bootstrap THIS folder (project-scope skills+agents)
+  ${chalk.cyan('ai-bootstrap add <names>')}       Add individual skills/agents (auto-detect scope)
+  ${chalk.cyan('ai-bootstrap add --bundle X')}    Merge an entire bundle on top of current
+  ${chalk.cyan('ai-bootstrap remove <names>')}    Remove skills/agents
+  ${chalk.cyan('ai-bootstrap list [--all]')}      List installed (project / user / all)
   ${chalk.cyan('ai-bootstrap update')}            Re-sync skills + agents from template bundle
   ${chalk.cyan('ai-bootstrap doctor')}            Diagnose install health (symlinks, MCPs, creds)
   ${chalk.cyan('ai-bootstrap mcp <sub>')}         MCP management — list, installed, credentials
@@ -116,6 +121,22 @@ async function main(): Promise<void> {
   if (cmd === 'new') {
     void trackEvent({ event: 'new' });
     return runNewCommand(args.slice(1));
+  }
+
+  if (cmd === 'add') {
+    void trackEvent({ event: 'add', properties: { argc: args.length - 1 } });
+    return runAddCommand(args.slice(1));
+  }
+
+  if (cmd === 'remove' || cmd === 'rm') {
+    void trackEvent({ event: 'remove', properties: { argc: args.length - 1 } });
+    runRemoveCommand(args.slice(1));
+    return;
+  }
+
+  if (cmd === 'list' || cmd === 'ls') {
+    runListCommand(args.slice(1));
+    return;
   }
 
   if (cmd === 'telemetry') {

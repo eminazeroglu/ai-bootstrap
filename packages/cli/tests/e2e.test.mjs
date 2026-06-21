@@ -75,6 +75,9 @@ describe('--help', () => {
   assert('exit 0', r.exitCode === 0);
   assert('lists default wizard', r.stdout.includes('Interactive 6-step user-scope setup wizard'));
   assert('lists new (project-scope)', r.stdout.includes('ai-bootstrap new'));
+  assert('lists add', r.stdout.includes('ai-bootstrap add'));
+  assert('lists remove', r.stdout.includes('ai-bootstrap remove'));
+  assert('lists list', r.stdout.includes('ai-bootstrap list'));
   assert('lists update', r.stdout.includes('ai-bootstrap update'));
   assert('lists doctor', r.stdout.includes('ai-bootstrap doctor'));
   assert('lists mcp', r.stdout.includes('ai-bootstrap mcp'));
@@ -160,7 +163,29 @@ describe('unknown command', () => {
   assert('reports unknown', r.stderr.includes('Unknown command') || r.stdout.includes('Unknown command'));
 });
 
-// ════ Test 12: unknown mcp subcommand ════
+// ════ Test 12a: add/remove/list help ════
+describe('add --help', () => {
+  const r = runCli(['add', '--help']);
+  assert('exit 0', r.exitCode === 0);
+  assert('shows usage', r.stdout.includes('ai-bootstrap add'));
+  assert('mentions --bundle', r.stdout.includes('--bundle'));
+});
+
+describe('list (empty user scope)', () => {
+  // Use fresh temp HOME with no installed skills
+  const r = runCli(['list', '--user']);
+  assert('exit 0', r.exitCode === 0);
+  assert('shows Skills section', r.stdout.includes('Skills'));
+  assert('shows Agents section', r.stdout.includes('Agents'));
+});
+
+describe('remove non-existent', () => {
+  const r = runCli(['remove', 'nonexistent-skill-xyz', '--user']);
+  assert('exit 0 (graceful)', r.exitCode === 0);
+  assert('reports not found', r.stdout.includes('yoxdur') || r.stdout.includes('not found'));
+});
+
+// ════ Test 12b: unknown mcp subcommand ════
 describe('unknown mcp subcommand', () => {
   const r = runCli(['mcp', 'fake-sub']);
   assert('exit non-zero', r.exitCode !== 0);
