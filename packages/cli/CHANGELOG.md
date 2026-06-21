@@ -7,22 +7,13 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [0.2.1] — 2026-06-21
 
-First successful npm publish via the GitHub Actions release workflow.
+First published version on npm.
 
 ### Changed
 
 - No functional code changes vs. 0.2.0.
-- Tag-triggered release pipeline verified end-to-end:
-  - CI verify job: tag ↔ package.json version match + 124 tests (smoke + e2e)
-  - Publish job: `npm publish --access public --provenance` via OIDC
-- npm package now carries provenance attestation (sigstore-signed).
-
-### Why patch, not minor
-
-The whole v0.2.0 changelog represents the actual feature work. This 0.2.1 bump
-exists purely to drive the first run of the release workflow now that the
-NPM_TOKEN repo secret is in place. Future releases (0.3.x and up) will land
-via the same flow.
+- Released manually via `npm publish` from a logged-in local environment
+  (the v0.2.0 commit existed only on GitHub; this is the npm-first release).
 
 [0.2.1]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.2.1
 

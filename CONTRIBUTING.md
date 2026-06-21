@@ -88,7 +88,7 @@ pnpm --filter @eminazeroglu/ai-bootstrap typecheck
 pnpm --filter @eminazeroglu/ai-bootstrap test       # smoke + e2e
 ```
 
-Both must be green. CI runs the same on Ubuntu + macOS with Node 22 + 24.
+Both must be green. Run locally before opening a PR.
 
 ## Commit + PR conventions
 
@@ -104,7 +104,7 @@ Both must be green. CI runs the same on Ubuntu + macOS with Node 22 + 24.
 2. Bump `packages/cli/package.json` version
 3. Commit: `chore: release vX.Y.Z`
 4. Tag: `git tag -a vX.Y.Z -m "..."` + `git push origin vX.Y.Z`
-5. CI auto-publishes to npm via `.github/workflows/release.yml` (needs `NPM_TOKEN` secret)
+5. From `packages/cli`, run `npm publish --access public` (requires `npm login` first)
 6. Create GitHub Release from tag with CHANGELOG section as notes
 
 ## License
