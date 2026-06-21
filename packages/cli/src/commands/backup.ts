@@ -127,10 +127,17 @@ async function initBackup(): Promise<void> {
       'GitHub SSH yaxud HTTPS URL olmalıdır',
   });
 
-  const isPrivate = await confirm({ message: 'Repo private-dir? (HÖKMƏN private olmalıdır)', default: true });
+  const isPrivate = await confirm({
+    message: 'Repo private-dir? (private tövsiyə olunur — ~/.claude/-da şəxsi data var)',
+    default: true,
+  });
   if (!isPrivate) {
-    console.log(chalk.red('✗ Public repo dayandırıldı — ~/.claude/ şəxsi məlumat içərir.'));
-    return;
+    console.log(chalk.yellow('⚠ Public repo: ~/.claude/ məlumatın görünür olacaq. Davam edirsən, sənin qərarındır.'));
+    const proceedPublic = await confirm({ message: 'Yenə də davam edək?', default: false });
+    if (!proceedPublic) {
+      console.log(chalk.dim('   Backup dayandırıldı. Sonra yenidən: ai-bootstrap backup init'));
+      return;
+    }
   }
 
   const branch = 'main';

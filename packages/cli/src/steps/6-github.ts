@@ -23,12 +23,24 @@ export async function githubStep(): Promise<{
   }
 
   const repoUrl = await input({
-    message: 'GitHub repo URL? (məs. https://github.com/eminazeroglu/claude-config)',
-    validate: (v) => /^https?:\/\/github\.com\//.test(v) || 'GitHub URL olmalıdır',
+    message: 'GitHub repo URL? (boş burax — sonra `ai-bootstrap backup init` ilə əlavə edərsən)',
+    validate: (v) => {
+      const trimmed = v.trim();
+      if (trimmed === '') return true;
+      return (
+        /^(git@github\.com:|https?:\/\/github\.com\/)[\w.-]+\/[\w.-]+(\.git)?$/.test(trimmed) ||
+        'GitHub SSH (git@github.com:user/repo) yaxud HTTPS (https://github.com/user/repo) URL olmalıdır'
+      );
+    },
   });
 
+  if (repoUrl.trim() === '') {
+    console.log(chalk.dim('   URL sonradan veriləcək. Sonra: ai-bootstrap backup init'));
+    return { enabled: true };
+  }
+
   const privateRepo = await confirm({
-    message: 'Private repo olmalıdır?',
+    message: 'Private repo? (private tövsiyə olunur — ~/.claude/-da şəxsi data var)',
     default: true,
   });
 

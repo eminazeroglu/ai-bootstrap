@@ -5,6 +5,28 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] — 2026-06-21
+
+User-autonomy fixes from first real-world test feedback.
+
+### Fixed
+
+- **Wizard step 6 (GitHub backup) over-validated URLs**:
+  - Now accepts both SSH (`git@github.com:user/repo`) and HTTPS
+  - Empty input is now allowed → defer URL to `ai-bootstrap backup init` later
+  - User no longer locked into giving a URL at wizard time
+- **`backup init` refused public repos outright**:
+  - Now warns + asks for explicit confirmation instead of hard-blocking
+  - Rationale: user autonomy — the user knows their threat model
+
+### Why
+
+In v0.2.1 test, the wizard rejected a valid SSH URL and refused to proceed.
+Two design errors: (1) regex was https-only, (2) URL was mandatory if user
+said "yes" to backup. Both fixed.
+
+[0.2.2]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.2.2
+
 ## [0.2.1] — 2026-06-21
 
 First published version on npm.
