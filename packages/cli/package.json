@@ -1,6 +1,6 @@
 {
   "name": "@eminazeroglu/ai-bootstrap",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Personal AI infrastructure bootstrap for Claude Code — interactive setup wizard with skills, agents, MCPs, and cross-project memory",
   "type": "module",
   "main": "./dist/index.js",

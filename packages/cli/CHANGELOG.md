@@ -5,6 +5,27 @@ All notable changes to `@eminazeroglu/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-06-21
+
+First successful npm publish via the GitHub Actions release workflow.
+
+### Changed
+
+- No functional code changes vs. 0.2.0.
+- Tag-triggered release pipeline verified end-to-end:
+  - CI verify job: tag ↔ package.json version match + 124 tests (smoke + e2e)
+  - Publish job: `npm publish --access public --provenance` via OIDC
+- npm package now carries provenance attestation (sigstore-signed).
+
+### Why patch, not minor
+
+The whole v0.2.0 changelog represents the actual feature work. This 0.2.1 bump
+exists purely to drive the first run of the release workflow now that the
+NPM_TOKEN repo secret is in place. Future releases (0.3.x and up) will land
+via the same flow.
+
+[0.2.1]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.2.1
+
 ## [0.2.0] — 2026-06-20
 
 Second release — closes the "post-launch roadmap" gaps from v0.1.0.
