@@ -16,6 +16,8 @@ import { runBackupCommand } from './commands/backup.js';
 import { runTelemetryCommand } from './commands/telemetry.js';
 import { runNewCommand } from './commands/new.js';
 import { runAddCommand, runRemoveCommand, runListCommand } from './commands/skills.js';
+import { runHelpCommand } from './commands/help.js';
+import { runScanCommand } from './commands/scan.js';
 import { trackEvent } from './utils/telemetry.js';
 
 async function runDefaultWizard(): Promise<void> {
@@ -86,9 +88,18 @@ async function main(): Promise<void> {
 
   const cmd = args[0];
 
-  if (cmd === '--help' || cmd === '-h' || cmd === 'help') {
+  if (cmd === '--help' || cmd === '-h') {
     printHelp();
     return;
+  }
+
+  if (cmd === 'help') {
+    runHelpCommand();
+    return;
+  }
+
+  if (cmd === 'scan') {
+    return runScanCommand(args.slice(1));
   }
 
   if (cmd === '--version' || cmd === '-v' || cmd === 'version') {

@@ -219,7 +219,7 @@ describe('skills-installer', () => {
   assert('architect installed', result.installed.includes('architect'));
 
   assert('skipped nonexistent', result.skipped.length === 1);
-  assert('skipped reason contains "Mənbə yoxdur"', result.skipped[0].reason.includes('Mənbə yoxdur'));
+  assert('skipped reason mentions pool absence', result.skipped[0].reason.includes('Pool-da yoxdur'));
 
   // Verify actual copies exist (not symlinks since C-20)
   const skillsDir = join(mockHome, '.claude', 'skills');

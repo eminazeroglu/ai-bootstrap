@@ -12,6 +12,7 @@
 import chalk from 'chalk';
 import { existsSync, readdirSync, statSync, rmSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { checkbox } from '@inquirer/prompts';
 import { CLAUDE_DIR, SKILLS_DIR, AGENTS_DIR } from '../utils/paths.js';
 import { installSkills } from '../applier/skills-installer.js';
 import { installAgents } from '../applier/agents-installer.js';
@@ -173,13 +174,84 @@ function listInstalled(skillsDir: string, agentsDir: string): { skills: string[]
   return { skills, agents };
 }
 
+async function interactiveAdd(ctx: ScopeContext): Promise<void> {
+  // Multi-select checkbox: Bundles + individual Skills + individual Agents
+  const bundleChoices = Object.keys(SKILL_BUNDLES).map((b) => ({
+    name: `${chalk.cyan(b)} ${chalk.dim(`(${SKILL_BUNDLES[b].length} skill, ${AGENT_BUNDLES[b].length} agent)`)}`,
+    value: `bundle:${b}`,
+  }));
+
+  const skillChoices = [...getTemplatesSkillsList()].sort().map((s) => ({
+    name: s,
+    value: `skill:${s}`,
+  }));
+
+  const agentChoices = [...getTemplatesAgentsList()].sort().map((a) => ({
+    name: a,
+    value: `agent:${a}`,
+  }));
+
+  const picked = await checkbox({
+    message: `Nə əlavə etmək istəyirsən? (Space = seç, A = hamı, Enter = bitir)\n  Scope: ${ctx.label}`,
+    choices: [
+      { name: chalk.bold('── Bundles ──'), value: '__sep1', disabled: true },
+      ...bundleChoices,
+      { name: chalk.bold('── Skills ──'), value: '__sep2', disabled: true },
+      ...skillChoices,
+      { name: chalk.bold('── Agents ──'), value: '__sep3', disabled: true },
+      ...agentChoices,
+    ],
+    pageSize: 20,
+    required: true,
+  });
+
+  // Resolve bundle:* into their constituent skills + agents
+  const skillsToInstall = new Set<string>();
+  const agentsToInstall = new Set<string>();
+  for (const p of picked) {
+    if (p.startsWith('bundle:')) {
+      const b = p.slice(7);
+      const plan = resolvePlan(b, b);
+      for (const s of plan.skills) skillsToInstall.add(s);
+      for (const a of plan.agents) agentsToInstall.add(a);
+    } else if (p.startsWith('skill:')) {
+      skillsToInstall.add(p.slice(6));
+    } else if (p.startsWith('agent:')) {
+      agentsToInstall.add(p.slice(6));
+    }
+  }
+
+  console.log(chalk.dim(`\n  Skills (${skillsToInstall.size})...`));
+  const sr = installSkills([...skillsToInstall], ctx.skillsDir);
+  console.log(
+    `  ${chalk.green('✓')} ${sr.installed.length} installed` +
+      (sr.skipped.length > 0 ? `, ${chalk.dim(sr.skipped.length + ' skipped')}` : '') +
+      (sr.errors.length > 0 ? `, ${chalk.red(sr.errors.length + ' errors')}` : ''),
+  );
+
+  console.log(chalk.dim(`  Agents (${agentsToInstall.size})...`));
+  const ar = installAgents([...agentsToInstall], ctx.agentsDir);
+  console.log(
+    `  ${chalk.green('✓')} ${ar.installed.length} installed` +
+      (ar.skipped.length > 0 ? `, ${chalk.dim(ar.skipped.length + ' skipped')}` : '') +
+      (ar.errors.length > 0 ? `, ${chalk.red(ar.errors.length + ' errors')}` : ''),
+  );
+  console.log('');
+}
+
 export async function runAddCommand(args: string[]): Promise<void> {
-  if (args.length === 0 || args[0] === 'help' || args[0] === '--help' || args[0] === '-h') {
+  if (args[0] === 'help' || args[0] === '--help' || args[0] === '-h') {
     printHelp('add');
     return;
   }
 
   const ctx = detectScope(args);
+
+  // No args + no flags → interactive multi-select
+  if (args.filter((a) => !a.startsWith('--')).length === 0 && !args.includes('--bundle')) {
+    console.log(chalk.bold(`\nai-bootstrap add — interaktiv\n`));
+    return interactiveAdd(ctx);
+  }
 
   let names: string[];
   const bundleIdx = args.indexOf('--bundle');

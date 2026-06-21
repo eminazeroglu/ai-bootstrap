@@ -1,107 +1,60 @@
-// Install selected skills to ~/.claude/skills/
-// Copies skill directories from packages/templates/skills/<skill>/
+// Install skills into a target skills directory by linking from the pool.
 //
-// Why copy (not symlink): npm caches may be cleaned, breaking symlinks.
-// Copying makes the install self-contained and survives any source removal.
-// Templates are versioned via the npm package itself.
+// v0.5.0 changed:
+//   - Used to COPY skill dirs from templates (~10KB each) per project
+//   - Now ensures pool is up-to-date, then SYMLINKS from pool → target
+//   - One copy on disk in pool; many lightweight links across projects
+//   - Updates to pool (via ai-bootstrap update) propagate automatically
+//
+// Cross-platform: POSIX symlink, Windows junction, copy fallback.
 
-import { existsSync, cpSync, rmSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ensureDir, SKILLS_DIR } from '../utils/paths.js';
-
-/**
- * Resolve the absolute path to skills templates folder.
- *
- * Lookup order:
- *   1) ./templates/skills/    — published npm package (bundled via prepack)
- *   2) ../templates/skills/   — packages/cli/templates/skills/ (dev edit fallback)
- *   3) ../../templates/skills/ — packages/templates/skills/ (monorepo dev)
- *
- * Returns the first path that exists; otherwise the most-likely production path.
- */
-function templatesSkillsPath(): string {
-  const here = fileURLToPath(import.meta.url);
-  // From dist/applier/skills-installer.js:
-  //   - cli root = ../../../
-  const cliRoot = resolve(here, '..', '..', '..');
-  const candidates = [
-    join(cliRoot, 'templates', 'skills'),                // 1) published npm pkg
-    resolve(cliRoot, '..', 'templates', 'skills'),        // 2) sibling templates package (monorepo)
-  ];
-  for (const c of candidates) {
-    if (existsSync(c)) return c;
-  }
-  return candidates[0];
-}
+import { ensurePool, linkFromPool, poolHasSkill, poolSkillPath } from './pool.js';
 
 export interface SkillInstallResult {
   installed: string[];
   skipped: { skill: string; reason: string }[];
   errors: { skill: string; error: string }[];
+  /** What link strategy was used (per the first link; consistent across the batch). */
+  linkMode?: 'symlink' | 'junction' | 'copy';
 }
 
 /**
  * Install skills into a target skills directory.
- * @param skillNames List of skill IDs to install
- * @param targetSkillsDir Absolute path to the skills directory (default: `~/.claude/skills/`).
- *                       Pass `<project>/.claude/skills/` for project-scope installation.
+ * @param skillNames List of skill IDs to install (must exist in pool)
+ * @param targetSkillsDir Absolute path. Default `~/.claude/skills/` (user scope).
+ *                       Pass `<project>/.claude/skills/` for project scope.
  */
 export function installSkills(
   skillNames: string[],
   targetSkillsDir: string = SKILLS_DIR,
 ): SkillInstallResult {
-  const result: SkillInstallResult = {
-    installed: [],
-    skipped: [],
-    errors: [],
-  };
+  const result: SkillInstallResult = { installed: [], skipped: [], errors: [] };
 
+  // Ensure the pool has the latest templates (no-op if already up-to-date)
+  ensurePool();
   ensureDir(targetSkillsDir);
-  const templatesDir = templatesSkillsPath();
-
-  if (!existsSync(templatesDir)) {
-    for (const name of skillNames) {
-      result.errors.push({
-        skill: name,
-        error: `Templates folder yoxdur: ${templatesDir}`,
-      });
-    }
-    return result;
-  }
 
   for (const name of skillNames) {
-    const sourceDir = join(templatesDir, name);
-    const targetDir = join(targetSkillsDir, name);
-
-    // Check source exists
-    if (!existsSync(sourceDir)) {
-      result.skipped.push({
-        skill: name,
-        reason: `Mənbə yoxdur: ${sourceDir} (skill hələ yazılmayıb)`,
-      });
+    if (!poolHasSkill(name)) {
+      result.skipped.push({ skill: name, reason: `Pool-da yoxdur: ${name}` });
       continue;
     }
 
-    // Check target already exists
-    if (existsSync(targetDir)) {
-      result.skipped.push({
-        skill: name,
-        reason: 'artıq install olunub',
-      });
+    const target = join(targetSkillsDir, name);
+    if (existsSync(target)) {
+      result.skipped.push({ skill: name, reason: 'artıq quraşdırılıb' });
       continue;
     }
 
-    // Copy recursively (npm-cache-safe; survives source removal)
     try {
-      cpSync(sourceDir, targetDir, { recursive: true, dereference: true });
+      const mode = linkFromPool(poolSkillPath(name), target);
       result.installed.push(name);
+      if (!result.linkMode) result.linkMode = mode;
     } catch (err) {
-      try { rmSync(targetDir, { recursive: true, force: true }); } catch { /* best-effort cleanup */ }
-      result.errors.push({
-        skill: name,
-        error: err instanceof Error ? err.message : String(err),
-      });
+      result.errors.push({ skill: name, error: err instanceof Error ? err.message : String(err) });
     }
   }
 

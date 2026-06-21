@@ -1,108 +1,93 @@
-// ai-bootstrap wizard — orchestrates the 6-step interactive setup
+// ai-bootstrap wizard — single-step setup (v0.5.0 rewrite).
+//
+// Old v0.4.x: 6 steps with 15+ questions, lots of friction.
+// v0.5.0 redesign (per user feedback):
+//   - 1 step: profile (3 questions only — ad, dil, kim+nə)
+//   - Bundle question REMOVED — auto-installs foundation user-scope
+//   - Project scan REMOVED — `ai-bootstrap scan <path>` if needed later
+//   - MCPs auto-installed (free, no-credential ones); `ai-bootstrap mcp add` for paid
+//   - Memory always-on (no questions)
+//   - GitHub backup deferred → `ai-bootstrap backup init` when ready
+//
+// Result: 30-second setup with no overwhelm.
 
 import chalk from 'chalk';
-import { confirm } from '@inquirer/prompts';
-import { profileStep } from './steps/1-profile.js';
-import { projectsStep } from './steps/2-projects.js';
-import { bundlesStep } from './steps/3-bundles.js';
-import { mcpsStep } from './steps/4-mcps.js';
-import { memoryStep } from './steps/5-memory.js';
-import { githubStep } from './steps/6-github.js';
+import { input, select, confirm } from '@inquirer/prompts';
 import type { WizardState } from './types.js';
 
+const FREE_MCPS = ['filesystem', 'memory', 'git', 'fetch', 'time', 'arxiv', 'youtube-transcript', 'puppeteer', 'playwright'];
+
 export async function runWizard(): Promise<WizardState> {
-  // Banner
   console.log('');
   console.log(chalk.bold.cyan('🧠 ai-bootstrap'));
-  console.log(chalk.dim('   Personal AI infrastructure bootstrap for Claude Code'));
+  console.log(chalk.dim('   Personal AI infrastructure for Claude Code'));
+  console.log('');
+  console.log(chalk.dim('   3 sual, 30 saniyə. Sonra hazırsan.'));
   console.log('');
 
-  // Initial permission gate
-  console.log(chalk.yellow('⚠️  İcazə lazımdır:'));
-  console.log(chalk.dim('   - Layihə qovluqlarını oxumaq (read-only)'));
-  console.log(chalk.dim('   - AI profilini qurmaq (sual verir)'));
-  console.log(chalk.dim('   - ~/.claude/ konfiqurasiya etmək'));
-  console.log(chalk.dim('   - MCP-lər üçün credential istəmək'));
-  console.log('');
-
-  const proceed = await confirm({
-    message: 'Davam edək?',
-    default: true,
-  });
-
+  const proceed = await confirm({ message: 'Davam edək?', default: true });
   if (!proceed) {
     console.log(chalk.yellow('Ləğv edildi.'));
     process.exit(0);
   }
 
-  // Run 6 steps sequentially
-  const state: Partial<WizardState> = {
+  console.log('');
+  console.log(chalk.bold('1/3 — Adın?'));
+  const name = await input({ message: 'Ad:', validate: (v) => v.trim().length > 0 || 'Boş ola bilməz' });
+
+  console.log('');
+  console.log(chalk.bold('2/3 — Əsas dilin?'));
+  const primaryLanguage = await select({
+    message: 'Dil:',
+    choices: [
+      { name: 'Azərbaycan', value: 'az' },
+      { name: 'English', value: 'en' },
+      { name: 'Русский', value: 'ru' },
+      { name: 'Türkçe', value: 'tr' },
+    ],
+    default: 'az',
+  });
+
+  console.log('');
+  console.log(chalk.bold('3/3 — Sən kimsən, nə edirsən?'));
+  console.log(chalk.dim('     Misal: "Emin, AI creator + founder. SaaS qururam, IG-də komedi videolar paylaşıram."'));
+  const bio = await input({
+    message: 'Bio:',
+    validate: (v) => v.trim().length >= 5 || 'Ən azı 5 hərf yaz',
+  });
+
+  const state: WizardState = {
+    profile: {
+      name: name.trim(),
+      primaryLanguage,
+      otherLanguages: [],
+      role: bio.trim(),
+      experience: 'expert',
+      country: '',
+      goals: { sixMonth: '', twelveMonth: '', twentyFourMonth: '' },
+    },
     projectPaths: [],
     projects: [],
+    selectedBundles: {
+      // Always install foundation user-scope. Project bundles come from `ai-bootstrap new`.
+      skills: 'foundation',
+      agents: 'foundation',
+      mcps: 'custom',
+    },
+    memoryConfig: {
+      storage: 'markdown-only',
+      autoLearn: true,
+      syncToGithub: false,
+    },
   };
 
-  // Step 1: Profile
-  state.profile = await profileStep();
+  // Free MCPs auto-installed
+  (state as { mcps?: string[] }).mcps = FREE_MCPS;
 
-  // Step 2: Projects
-  const projectsResult = await projectsStep();
-  state.projectPaths = projectsResult.paths;
-  state.projects = projectsResult.selected;
-
-  // Step 3: Bundles
-  const bundlesResult = await bundlesStep();
-  state.selectedBundles = {
-    skills: bundlesResult.skills,
-    agents: bundlesResult.agents,
-    mcps: 'custom', // determined in step 4
-  };
-
-  // Step 4: MCPs
-  const mcpsResult = await mcpsStep();
-  (state as any).mcps = mcpsResult.selected;
-
-  // Step 5: Memory
-  const memoryResult = await memoryStep();
-  state.memoryConfig = {
-    storage: memoryResult.storage,
-    autoLearn: memoryResult.autoLearn,
-    syncToGithub: false, // determined in step 6
-  };
-
-  // Step 6: GitHub
-  const githubResult = await githubStep();
-  state.memoryConfig.syncToGithub = githubResult.enabled;
-  if (githubResult.repoUrl) {
-    state.memoryConfig.githubRepo = githubResult.repoUrl;
-  }
-
-  // Final summary
   console.log('');
-  console.log(chalk.bold.green('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-  console.log(chalk.bold.green('✓ Setup tamamlandı!'));
-  console.log(chalk.bold.green('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
-  console.log('');
-  console.log(chalk.bold('Yığım:'));
-  console.log(`  Ad:          ${chalk.cyan(state.profile.name)}`);
-  console.log(`  Dil:         ${chalk.cyan(state.profile.primaryLanguage)}`);
-  console.log(`  Rol:         ${chalk.cyan(state.profile.role)}`);
-  console.log(`  Layihələr:   ${chalk.cyan(state.projects.length)} əlavə edildi`);
-  console.log(`  Skill bundle:${chalk.cyan(state.selectedBundles.skills)}`);
-  console.log(`  Agent bundle:${chalk.cyan(state.selectedBundles.agents)}`);
-  console.log(`  MCP-lər:     ${chalk.cyan(mcpsResult.selected.length)} aktiv`);
-  console.log(`  Yaddaş:      ${chalk.cyan(state.memoryConfig.storage)}`);
-  console.log(`  GitHub sync: ${chalk.cyan(state.memoryConfig.syncToGithub ? 'aktiv' : 'qeyri-aktiv')}`);
-  console.log('');
-  console.log(chalk.bold('Yaddaşın yeri:'));
-  console.log(`  ${chalk.dim('~/.claude/')}                 ${chalk.dim('— Claude Code config')}`);
-  console.log(`  ${chalk.dim('~/.claude/knowledge/')}      ${chalk.dim('— cross-project memory')}`);
-  console.log(`  ${chalk.dim('~/.claude/skills/')}         ${chalk.dim('— skill-lər')}`);
-  console.log(`  ${chalk.dim('~/.claude/agents/')}         ${chalk.dim('— agent-lər')}`);
-  console.log('');
-  console.log(chalk.bold('Növbəti addım:'));
-  console.log(`  ${chalk.cyan('claude')}                       — interaktiv sessiya başlat`);
-  console.log(`  ${chalk.cyan('claude /help')}                 — komandalar`);
+  console.log(chalk.bold.green('✓ Profile yığıldı.'));
+  console.log(chalk.dim('   Quraşdırılır...'));
   console.log('');
 
-  return state as WizardState;
+  return state;
 }

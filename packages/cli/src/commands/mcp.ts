@@ -9,10 +9,10 @@
 import chalk from 'chalk';
 import { existsSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import { join } from 'node:path';
-import { input, password } from '@inquirer/prompts';
+import { input, password, checkbox } from '@inquirer/prompts';
 import { HOME } from '../utils/paths.js';
 import { MCP_CATALOG, getMcpEntry } from '../applier/mcp-catalog.js';
-import { listInstalledMcps } from '../applier/mcp-config.js';
+import { writeMcpConfig, listInstalledMcps } from '../applier/mcp-config.js';
 
 const ENV_FILE = join(HOME, '.ai-bootstrap.env');
 
@@ -21,9 +21,11 @@ function printMcpHelp(): void {
 ${chalk.bold('ai-bootstrap mcp')} — MCP server management
 
 ${chalk.bold('Subcommands:')}
-  ${chalk.cyan('list')}         List all available MCPs in the catalog
-  ${chalk.cyan('installed')}    List MCPs configured via ai-bootstrap
-  ${chalk.cyan('credentials')}  Interactively fill credentials into ~/.ai-bootstrap.env
+  ${chalk.cyan('list')}                          List all available MCPs in the catalog
+  ${chalk.cyan('add')}                           Interactive multi-select MCP server(s)
+  ${chalk.cyan('add github notion slack')}        Add specific MCPs by ID
+  ${chalk.cyan('installed')}                     List MCPs configured via ai-bootstrap
+  ${chalk.cyan('credentials')}                   Interactively fill credentials into ~/.ai-bootstrap.env
 `);
 }
 
@@ -133,6 +135,54 @@ async function collectCredentials(): Promise<void> {
   console.log(chalk.cyan(`  set -a; source ${ENV_FILE}; set +a\n`));
 }
 
+async function addMcps(names: string[]): Promise<void> {
+  let toInstall: string[] = names;
+
+  // No args → interactive multi-select
+  if (toInstall.length === 0) {
+    const byCategory = new Map<string, typeof MCP_CATALOG[string][]>();
+    for (const entry of Object.values(MCP_CATALOG)) {
+      const list = byCategory.get(entry.category) ?? [];
+      list.push(entry);
+      byCategory.set(entry.category, list);
+    }
+
+    const choices: { name: string; value: string; disabled?: string | boolean }[] = [];
+    for (const [cat, entries] of byCategory) {
+      choices.push({ name: chalk.bold(`── ${cat.toUpperCase()} ──`), value: `__cat_${cat}`, disabled: true });
+      for (const e of entries.sort((a, b) => a.id.localeCompare(b.id))) {
+        const credIcon = e.credentialKeys.length > 0 ? chalk.yellow(' 🔑') : '';
+        choices.push({ name: `${e.id.padEnd(22)} ${chalk.dim(e.description)}${credIcon}`, value: e.id });
+      }
+    }
+
+    toInstall = await checkbox({
+      message: 'MCP server-(lər)i seç: (Space = seç, Enter = bitir, 🔑 = credential lazımdır)',
+      choices,
+      pageSize: 25,
+      required: true,
+    });
+  }
+
+  console.log(chalk.dim(`\n  Quraşdırılır: ${toInstall.join(', ')}\n`));
+  const result = writeMcpConfig(toInstall);
+  console.log(`  ${chalk.green('✓')} ${result.installed.length} yeni MCP konfiq edildi`);
+  if (result.skipped.length > 0) {
+    console.log(chalk.dim(`  ${result.skipped.length} artıq var: ${result.skipped.join(', ')}`));
+  }
+  if (result.missingFromCatalog.length > 0) {
+    console.log(chalk.yellow(`  ⚠ Kataloqda yoxdur: ${result.missingFromCatalog.join(', ')}`));
+  }
+  if (result.credentialsRequired.length > 0) {
+    console.log(
+      chalk.dim(
+        `\n  ${result.credentialsRequired.length} MCP credential gözləyir. İçin: ${chalk.cyan('ai-bootstrap mcp credentials')}`,
+      ),
+    );
+  }
+  console.log('');
+}
+
 export async function runMcpCommand(args: string[]): Promise<void> {
   const sub = args[0];
 
@@ -148,6 +198,11 @@ export async function runMcpCommand(args: string[]): Promise<void> {
 
   if (sub === 'installed') {
     listInstalled();
+    return;
+  }
+
+  if (sub === 'add') {
+    await addMcps(args.slice(1).filter((a) => !a.startsWith('--')));
     return;
   }
 

@@ -1,6 +1,6 @@
 // Cross-platform path utilities
 
-import { homedir } from 'node:os';
+import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import { existsSync, mkdirSync } from 'node:fs';
 
@@ -10,6 +10,15 @@ export const KNOWLEDGE_DIR = join(CLAUDE_DIR, 'knowledge');
 export const SKILLS_DIR = join(CLAUDE_DIR, 'skills');
 export const AGENTS_DIR = join(CLAUDE_DIR, 'agents');
 export const SETTINGS_FILE = join(CLAUDE_DIR, 'settings.json');
+
+// Pool: single source of truth for all skill/agent templates.
+// Skills/agents in user-scope + projects are symlinks (or junctions/copies on Windows)
+// pointing here. Updates to a skill propagate to every project automatically.
+// One copy on disk, many references.
+export const SKILLS_POOL_DIR = join(CLAUDE_DIR, 'skills-pool');
+export const AGENTS_POOL_DIR = join(CLAUDE_DIR, 'agents-pool');
+
+export const IS_WINDOWS = platform() === 'win32';
 
 export function ensureDir(path: string): void {
   if (!existsSync(path)) {

@@ -5,6 +5,84 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-06-21
+
+Big architectural + UX redesign from real-world test feedback.
+
+### Added — Pool + Symlink architecture
+
+- `~/.claude/skills-pool/` — ALL skills stored ONCE on disk (~3.8 MB total)
+- `~/.claude/agents-pool/` — same for agents
+- User-scope (`~/.claude/skills/`) and project-scope (`<project>/.claude/skills/`)
+  are now **symlinks** pointing to pool entries (POSIX), junctions (Windows),
+  or copies (Windows fallback when admin not available)
+- **Result**: 10 creator projects = 1 pool copy + 260 symlinks, not 260 file copies
+- Updates to a skill propagate to every project automatically (pnpm-style pattern)
+
+### Changed — wizard simplified 6 steps → 1
+
+Previous (v0.4.x): 15+ questions across 6 steps. Real user got overwhelmed,
+hit SIGINT mid-flow, asked "why is this asking globally?".
+
+New (v0.5.0): **3 questions only**:
+1. Adın?
+2. Əsas dilin? (az/en/ru/tr)
+3. Sən kimsən, nə edirsən? (1-2 cümlə)
+
+Removed entirely:
+- Projects scan step (no projects on fresh machine — `ai-bootstrap scan <path>` later)
+- Bundle selection step (auto-installs `foundation` user-scope; project bundles via `new`)
+- MCPs full picker (auto-installs 9 free MCPs: filesystem, memory, git, fetch,
+  time, arxiv, youtube-transcript, puppeteer, playwright)
+- Memory configuration step (defaults: markdown-only, learning-keeper ON, all logs ON)
+- GitHub backup step (use `ai-bootstrap backup init` when ready)
+
+### Changed — `ai-bootstrap new` simplified
+
+Previous: 5 questions (single-bundle + override confirm + custom rules).
+New: **3 questions only**:
+1. Layihə adı?
+2. Bundle(lər)? (**multi-select checkbox** — pick multiple at once)
+3. Qısa təsvir? (1-2 cümlə)
+
+Removed:
+- Single-bundle intent selection (replaced by multi-select)
+- Bundle override confirm (multi-select handles it)
+- Custom rules question (placeholder added to CLAUDE.md instead)
+
+### Added — new commands
+
+- `ai-bootstrap help` — comprehensive guide (full tour, not just brief --help)
+- `ai-bootstrap add` (no args) — **interactive multi-select** of all bundles + skills + agents
+- `ai-bootstrap mcp add` — multi-select MCP picker (was missing)
+- `ai-bootstrap mcp add github notion slack` — direct add
+- `ai-bootstrap scan ~/MyJobs` — manual project scan (replaces removed wizard step)
+
+### Quality
+
+- Cross-platform link helper: `linkFromPool()` tries symlink → junction → copy
+- Pool sync detects newer template versions and refreshes pool entries
+- 142 tests still passing (87 smoke + 55 e2e)
+
+### Workflow
+
+```bash
+# 1) Maşına bir dəfə (3 sual, 30 saniyə):
+npm install -g @azerogluemin/ai-bootstrap@latest
+ai-bootstrap
+
+# 2) Hər yeni layihə (3 sual, 20 saniyə):
+cd ~/Projects/yeni-layihə
+ai-bootstrap new
+```
+
+### Migration
+
+- v0.4.x project copies → v0.5.0 symlinks: run `ai-bootstrap update` to switch
+- Or `ai-bootstrap remove --all` then `ai-bootstrap new` per project
+
+[0.5.0]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.5.0
+
 ## [0.4.2] — 2026-06-21
 
 README quick-start fixed — global install upfront.

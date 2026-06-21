@@ -1,89 +1,76 @@
-// ai-bootstrap new — bootstrap a NEW project folder with project-scope skills + agents
+// ai-bootstrap new — bootstrap a project folder with project-scope skills + agents.
+//
+// v0.5.0 changes (per user feedback):
+//   - 3 questions only (was 5)
+//   - MULTI-SELECT bundles (was single-select + override)
+//   - No custom rules question (placeholder in CLAUDE.md instead)
 //
 // Flow:
-//   1. Detect cwd as the project folder
-//   2. Ask: what is this project? (intent → bundle suggestion)
-//   3. Confirm bundle (or override)
-//   4. Ask: 1-line project description (goes into CLAUDE.md)
-//   5. Install skills to <cwd>/.claude/skills/ (PROJECT scope)
-//   6. Install agents to <cwd>/.claude/agents/ (PROJECT scope)
-//   7. Write <cwd>/CLAUDE.md with description + bundle reference
-//   8. Write <cwd>/.claude/.gitignore (excludes installed templates if desired)
+//   1) Project name (default: folder basename)
+//   2) Bundles (multi-select checkbox)
+//   3) Description (1-2 sentences for CLAUDE.md)
 //
-// Why project-scope: Claude Code loads project-scope skills ONLY when the user
-// is inside that project. This lets you have different skill sets per project
-// (developer for SaaS, creator for content, marketer for SMM) without polluting
-// every session with irrelevant skills.
+// Installation uses Pool+Symlink: skills/agents are symlinked from
+// ~/.claude/skills-pool/ — no per-project duplication on disk.
 
 import chalk from 'chalk';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
-import { select, input, confirm } from '@inquirer/prompts';
+import { input, confirm, checkbox } from '@inquirer/prompts';
 import { installSkills } from '../applier/skills-installer.js';
 import { installAgents } from '../applier/agents-installer.js';
 import { resolvePlan, SKILL_BUNDLES, AGENT_BUNDLES } from '../applier/bundle-definitions.js';
 
-interface ProjectIntent {
-  id: string;
-  label: string;
-  bundle: keyof typeof SKILL_BUNDLES;
-  description: string;
-}
-
-const INTENTS: ProjectIntent[] = [
-  { id: 'saas', label: 'SaaS / Fullstack web app', bundle: 'developer', description: 'Backend + frontend + DB + DevOps' },
-  { id: 'creator', label: 'AI Creator content (video, Reels, story, music)', bundle: 'creator', description: 'Video pipeline + character + storyboard + audio' },
-  { id: 'marketing', label: 'Marketing / SMM campaign', bundle: 'marketer', description: 'SEO + social orchestrators + copywriting + ads' },
-  { id: 'mobile', label: 'Mobile app', bundle: 'developer', description: 'Same developer bundle as web (architect/test/refactor/security)' },
-  { id: 'data', label: 'Data analysis / dashboard', bundle: 'developer', description: 'Architect + analyst patterns; consider founder bundle for biz metrics' },
-  { id: 'agency', label: 'Client agency work (multi-service)', bundle: 'full-stack', description: 'Everything — heaviest install (75+ agents)' },
-  { id: 'founder', label: 'Startup / founder work', bundle: 'founder', description: 'C-Level advisors + product + marketing + coaching' },
-  { id: 'opensource', label: 'Open source library / tool', bundle: 'developer', description: 'Engineering bundle + docs' },
-  { id: 'foundation', label: 'Just the basics (minimal)', bundle: 'foundation', description: '10 essential skills, 2 agents' },
+const BUNDLES_INFO: { id: keyof typeof SKILL_BUNDLES; label: string; description: string }[] = [
+  { id: 'foundation', label: 'Foundation', description: '10 universal skill (artıq qlobalda var)' },
+  { id: 'developer', label: 'Developer', description: 'SaaS, fullstack, mobile, data (21 skill, 18 agent)' },
+  { id: 'creator', label: 'Creator', description: 'Video, Reel, sosial, brand (26 skill, 13 agent)' },
+  { id: 'marketer', label: 'Marketer', description: 'SEO, SMM, copy, ads (24 skill, 29 agent)' },
+  { id: 'founder', label: 'Founder', description: 'C-Level + product + marketing + coaching (35, 38)' },
+  { id: 'full-stack', label: 'Full Stack', description: 'HƏR ŞEY — 85 skill, 78 agent' },
 ];
 
-function projectClaudeMd(name: string, description: string, intent: ProjectIntent, customRules: string): string {
+function projectClaudeMd(name: string, description: string, bundles: string[]): string {
   return `# CLAUDE.md — ${name}
 
 Bu fayl bu layihə üçün xüsusi instruksiyalardır. Hər söhbətdə avtomatik yüklənir.
 
 ## Layihə haqqında
 
-${description}
+${description || '(təsvir verilməyib — buraya yaz)'}
 
-## Növ + bundle
+## Bundle(lər)
 
-- **Növ**: ${intent.label}
-- **Bundle**: \`${intent.bundle}\` (${intent.description})
-- **Bootstrap**: ai-bootstrap v$(npm view @azerogluemin/ai-bootstrap version 2>/dev/null || echo 'unknown')
+${bundles.map((b) => '- `' + b + '`').join('\n')}
 
-## Layihə skill + agent-ləri
+Skill + agent siyahısı: \`.claude/skills/\` və \`.claude/agents/\` qovluqlarında (symlinks).
+Pool: \`~/.claude/skills-pool/\` — bütün skill-lər bir dəfə saxlanır, hər layihə link verir.
 
-Bu layihənin \`.claude/skills/\` və \`.claude/agents/\` qovluqlarında **project-scope** olaraq quraşdırılıb.
-Yalnız bu layihədə işləyəndə Claude Code onları yükləyir.
-
-Yenidən install:
-
-\`\`\`bash
-ai-bootstrap new   # bu qovluqda yenidən qaçırsan, mövcudları skip edir
+Əlavə skill/bundle əlavə etmək:
 \`\`\`
-
-Layihə-spesifik skill yaratmaq üçün: \`.claude/skills/<my-skill>/SKILL.md\`
+ai-bootstrap add showrunner       # tək skill
+ai-bootstrap add --bundle marketer # bütün bundle
+ai-bootstrap add                  # interaktiv siyahı
+\`\`\`
 
 ## Custom rules (bu layihəyə xas)
 
-${customRules || '(buraya layihə-spesifik qaydalar yaz — məcburi yox)'}
+<!-- Buraya layihə-spesifik qaydalar yaz. Misal:
+1. AZ-də danış, RU sözləri qarışdırma
+2. Bu layihədə Tailwind v4 istifadə olunur
+3. Müştəri "Restoran X" şirkətidir, terminlərinə hörmət et
+-->
 `;
 }
 
 function projectGitignore(): string {
   return [
     '# ai-bootstrap project-scope installations',
-    '# Uncomment to track installed skills/agents in git (default: tracked):',
-    '#skills/',
-    '#agents/',
+    '# Skills + agents qovluqlarını git-ə salmaq istəyirsənsə commentdə qoy:',
+    '# skills/',
+    '# agents/',
     '',
-    '# Always exclude:',
+    '# Həmişə xaric:',
     '*.log',
     '.DS_Store',
     '',
@@ -94,67 +81,33 @@ export async function runNewCommand(_args: string[]): Promise<void> {
   const cwd = process.cwd();
   const folderName = basename(cwd);
 
-  console.log(chalk.bold(`\nai-bootstrap new — bootstrap project skills + agents\n`));
-  console.log(chalk.dim(`  Project folder: ${cwd}`));
-  console.log(chalk.dim(`  Detected name:  ${folderName}\n`));
+  console.log(chalk.bold(`\nai-bootstrap new — layihə skill + agent quraşdırması\n`));
+  console.log(chalk.dim(`  Qovluq:  ${cwd}\n`));
 
   // Step 1: project name
   const projectName = await input({
-    message: 'Layihə adı?',
+    message: '1/3 — Layihə adı?',
     default: folderName,
   });
 
-  // Step 2: intent (open-ended would also be valid; we offer choices for speed)
-  const intentId = await select({
-    message: 'Bu qovluqda nə etmək istəyirsən?',
-    choices: INTENTS.map((i) => ({
-      name: `${i.label} ${chalk.dim('(' + i.bundle + ')')}`,
-      value: i.id,
-      description: i.description,
+  // Step 2: multi-select bundles
+  const bundleIds = await checkbox({
+    message: '2/3 — Hansı bundle(ləri) istəyirsən? (Space = seç, Enter = bitir)',
+    choices: BUNDLES_INFO.map((b) => ({
+      name: `${b.label} — ${chalk.dim(b.description)}`,
+      value: b.id,
+      disabled: b.id === 'foundation' ? '(artıq qlobalda)' : false,
     })),
+    required: true,
   });
 
-  const intent = INTENTS.find((i) => i.id === intentId)!;
-
-  // Step 3: bundle override
-  const useCustomBundle = await confirm({
-    message: `Bundle: ${chalk.cyan(intent.bundle)} (${SKILL_BUNDLES[intent.bundle].length} skill, ${AGENT_BUNDLES[intent.bundle].length} agent). Dəyişdirək?`,
-    default: false,
-  });
-
-  let bundleKey: keyof typeof SKILL_BUNDLES = intent.bundle;
-  if (useCustomBundle) {
-    const picked = await select({
-      message: 'Bundle seç:',
-      choices: Object.keys(SKILL_BUNDLES).map((b) => ({
-        name: `${b} ${chalk.dim(`(${SKILL_BUNDLES[b].length} skill, ${AGENT_BUNDLES[b].length} agent)`)}`,
-        value: b,
-      })),
-      default: intent.bundle,
-    });
-    bundleKey = picked as keyof typeof SKILL_BUNDLES;
-  }
-
-  // Step 4: description
+  // Step 3: description
   const description = await input({
-    message: 'Layihə təsviri (1-2 cümlə) — CLAUDE.md-yə yazılacaq:',
+    message: '3/3 — Qısa təsvir (1-2 cümlə) — CLAUDE.md-yə yazılacaq:',
     default: '',
   });
 
-  // Step 5: custom rules (optional)
-  const wantsRules = await confirm({
-    message: 'Layihə-spesifik qayda(lar) əlavə edək? (sonra əl ilə də əlavə oluna bilər)',
-    default: false,
-  });
-  let customRules = '';
-  if (wantsRules) {
-    customRules = await input({
-      message: 'Qaydalar (çoxsətirli — Enter ilə bitir):',
-      default: '',
-    });
-  }
-
-  // Step 6: install
+  // Install
   const projectClaudeDir = join(cwd, '.claude');
   const projectSkillsDir = join(projectClaudeDir, 'skills');
   const projectAgentsDir = join(projectClaudeDir, 'agents');
@@ -164,23 +117,32 @@ export async function runNewCommand(_args: string[]): Promise<void> {
   }
 
   console.log('');
-  console.log(chalk.bold(`Quraşdırılır → ${chalk.cyan(projectClaudeDir)}\n`));
+  console.log(chalk.bold(`Quraşdırılır → ${chalk.cyan(projectClaudeDir)}`));
+  console.log(chalk.dim(`  Pool: ~/.claude/skills-pool/ + ~/.claude/agents-pool/ (symlinks)\n`));
 
-  const plan = resolvePlan(bundleKey, bundleKey);
+  // Aggregate skills + agents from all selected bundles (dedupe)
+  const allSkills = new Set<string>();
+  const allAgents = new Set<string>();
+  for (const id of bundleIds) {
+    const plan = resolvePlan(id, id);
+    for (const s of plan.skills) allSkills.add(s);
+    for (const a of plan.agents) allAgents.add(a);
+  }
 
-  console.log(chalk.dim(`  Skills (${plan.skills.length})...`));
-  const skillResult = installSkills(plan.skills, projectSkillsDir);
+  console.log(chalk.dim(`  Skills (${allSkills.size})...`));
+  const skillResult = installSkills([...allSkills], projectSkillsDir);
   console.log(
     `  ${chalk.green('✓')} ${skillResult.installed.length} installed` +
-      (skillResult.skipped.length > 0 ? `, ${chalk.dim(skillResult.skipped.length + ' skipped (already present)')}` : '') +
-      (skillResult.errors.length > 0 ? `, ${chalk.red(skillResult.errors.length + ' errors')}` : ''),
+      (skillResult.skipped.length > 0 ? `, ${chalk.dim(skillResult.skipped.length + ' skipped')}` : '') +
+      (skillResult.errors.length > 0 ? `, ${chalk.red(skillResult.errors.length + ' errors')}` : '') +
+      (skillResult.linkMode ? chalk.dim(`  [${skillResult.linkMode}]`) : ''),
   );
 
-  console.log(chalk.dim(`  Agents (${plan.agents.length})...`));
-  const agentResult = installAgents(plan.agents, projectAgentsDir);
+  console.log(chalk.dim(`  Agents (${allAgents.size})...`));
+  const agentResult = installAgents([...allAgents], projectAgentsDir);
   console.log(
     `  ${chalk.green('✓')} ${agentResult.installed.length} installed` +
-      (agentResult.skipped.length > 0 ? `, ${chalk.dim(agentResult.skipped.length + ' skipped (already present)')}` : '') +
+      (agentResult.skipped.length > 0 ? `, ${chalk.dim(agentResult.skipped.length + ' skipped')}` : '') +
       (agentResult.errors.length > 0 ? `, ${chalk.red(agentResult.errors.length + ' errors')}` : ''),
   );
 
@@ -192,23 +154,23 @@ export async function runNewCommand(_args: string[]): Promise<void> {
       default: false,
     });
     if (overwrite) {
-      writeFileSync(claudeMdPath, projectClaudeMd(projectName, description || '(təsvir verilməyib)', intent, customRules), 'utf-8');
+      writeFileSync(claudeMdPath, projectClaudeMd(projectName, description, bundleIds), 'utf-8');
       console.log(`  ${chalk.green('✓')} CLAUDE.md yenilədi`);
     } else {
       console.log(`  ${chalk.dim('−')} CLAUDE.md saxlandı (üstünə yazılmadı)`);
     }
   } else {
-    writeFileSync(claudeMdPath, projectClaudeMd(projectName, description || '(təsvir verilməyib)', intent, customRules), 'utf-8');
+    writeFileSync(claudeMdPath, projectClaudeMd(projectName, description, bundleIds), 'utf-8');
     console.log(`  ${chalk.green('✓')} CLAUDE.md yazıldı`);
   }
 
-  // Write .claude/.gitignore if not present
+  // Project gitignore (in .claude/)
   const gitignorePath = join(projectClaudeDir, '.gitignore');
   if (!existsSync(gitignorePath)) {
     writeFileSync(gitignorePath, projectGitignore(), 'utf-8');
   }
 
-  // Write project state for `ai-bootstrap update` inside the project
+  // Project state
   const projectStatePath = join(projectClaudeDir, 'ai-bootstrap-project.json');
   writeFileSync(
     projectStatePath,
@@ -216,8 +178,7 @@ export async function runNewCommand(_args: string[]): Promise<void> {
       {
         version: '1.0',
         name: projectName,
-        intent: intent.id,
-        bundle: bundleKey,
+        bundles: bundleIds,
         description,
         createdAt: new Date().toISOString(),
       },
@@ -230,8 +191,9 @@ export async function runNewCommand(_args: string[]): Promise<void> {
   console.log('');
   console.log(chalk.bold.green('🎉 Layihə hazırdır.\n'));
   console.log(chalk.dim('Növbəti:'));
-  console.log(`  ${chalk.cyan('claude')}                        — sessiyanı başlat`);
-  console.log(`  ${chalk.cyan('cat CLAUDE.md')}                  — layihə qaydalarını yoxla`);
-  console.log(`  ${chalk.cyan('ls .claude/skills | head')}        — quraşdırılan skill-ləri gör`);
+  console.log(`  ${chalk.cyan('claude')}                          — sessiyanı başlat`);
+  console.log(`  ${chalk.cyan('cat CLAUDE.md')}                    — layihə qaydalarını yoxla`);
+  console.log(`  ${chalk.cyan('ai-bootstrap list')}                — quraşdırılanlar`);
+  console.log(`  ${chalk.cyan('ai-bootstrap add <skill>')}         — əlavə skill əlavə`);
   console.log('');
 }

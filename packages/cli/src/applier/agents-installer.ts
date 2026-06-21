@@ -1,92 +1,45 @@
-// Install selected agents to ~/.claude/agents/
-// Copies agent directories from packages/templates/agents/<name>/
-// (Copy not symlink: npm cache may be cleaned, breaking symlinks.)
+// Install agents into a target agents directory by linking from the pool.
+// Same architecture as skills-installer (v0.5.0 Pool+Symlink).
 
-import { existsSync, cpSync, rmSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { ensureDir, AGENTS_DIR } from '../utils/paths.js';
-
-function templatesAgentsPath(): string {
-  // Lookup order:
-  //   1) ./templates/agents/  — published npm package (bundled via prepack)
-  //   2) ../templates/agents/ — sibling templates package (monorepo dev)
-  const here = fileURLToPath(import.meta.url);
-  const cliRoot = resolve(here, '..', '..', '..');
-  const candidates = [
-    join(cliRoot, 'templates', 'agents'),
-    resolve(cliRoot, '..', 'templates', 'agents'),
-  ];
-  for (const c of candidates) {
-    if (existsSync(c)) return c;
-  }
-  return candidates[0];
-}
+import { ensurePool, linkFromPool, poolHasAgent, poolAgentPath } from './pool.js';
 
 export interface AgentInstallResult {
   installed: string[];
   skipped: { agent: string; reason: string }[];
   errors: { agent: string; error: string }[];
+  linkMode?: 'symlink' | 'junction' | 'copy';
 }
 
-/**
- * Install agents into a target agents directory.
- * @param agentNames List of agent IDs to install
- * @param targetAgentsDir Absolute path. Default `~/.claude/agents/`; pass
- *                       `<project>/.claude/agents/` for project-scope.
- */
 export function installAgents(
   agentNames: string[],
   targetAgentsDir: string = AGENTS_DIR,
 ): AgentInstallResult {
-  const result: AgentInstallResult = {
-    installed: [],
-    skipped: [],
-    errors: [],
-  };
+  const result: AgentInstallResult = { installed: [], skipped: [], errors: [] };
 
+  ensurePool();
   ensureDir(targetAgentsDir);
-  const templatesDir = templatesAgentsPath();
-
-  if (!existsSync(templatesDir)) {
-    for (const name of agentNames) {
-      result.skipped.push({
-        agent: name,
-        reason: 'agents templates folder yoxdur (Mərhələ C-5-də yaradılır)',
-      });
-    }
-    return result;
-  }
 
   for (const name of agentNames) {
-    const sourceDir = join(templatesDir, name);
-    const targetDir = join(targetAgentsDir, name);
-
-    if (!existsSync(sourceDir)) {
-      result.skipped.push({
-        agent: name,
-        reason: `template yoxdur: ${name} (skill hələ yazılmayıb)`,
-      });
+    if (!poolHasAgent(name)) {
+      result.skipped.push({ agent: name, reason: `Pool-da yoxdur: ${name}` });
       continue;
     }
 
-    if (existsSync(targetDir)) {
-      result.skipped.push({
-        agent: name,
-        reason: 'artıq install olunub',
-      });
+    const target = join(targetAgentsDir, name);
+    if (existsSync(target)) {
+      result.skipped.push({ agent: name, reason: 'artıq quraşdırılıb' });
       continue;
     }
 
     try {
-      cpSync(sourceDir, targetDir, { recursive: true, dereference: true });
+      const mode = linkFromPool(poolAgentPath(name), target);
       result.installed.push(name);
+      if (!result.linkMode) result.linkMode = mode;
     } catch (err) {
-      try { rmSync(targetDir, { recursive: true, force: true }); } catch { /* best-effort */ }
-      result.errors.push({
-        agent: name,
-        error: err instanceof Error ? err.message : String(err),
-      });
+      result.errors.push({ agent: name, error: err instanceof Error ? err.message : String(err) });
     }
   }
 
