@@ -6,18 +6,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node ≥22](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 
-## TL;DR — 2 addım
+## TL;DR — 3 addım
 
 ```bash
-# 1) Bir dəfə bütün maşına (foundation: 10 universal skill)
-npx @azerogluemin/ai-bootstrap
+# 1) Bir dəfə qlobal install (ai-bootstrap komandasını maşına əlavə edir)
+npm install -g @azerogluemin/ai-bootstrap
 
-# 2) Hər yeni layihədə (bundle: layihənin növünə uyğun skill-lər)
+# 2) Bir dəfə user-scope wizard (foundation: 10 universal skill)
+ai-bootstrap
+
+# 3) Hər yeni layihədə (bundle: layihənin növünə uyğun skill-lər)
 cd ~/Projects/yeni-layihə
 ai-bootstrap new
 ```
 
 Bitdi. Hər layihədə sadəcə `claude` yaz — uyğun skill + agent dəstləri özü yüklənir.
+
+> **Niyə qlobal install?** `npx @azerogluemin/ai-bootstrap` paketi bir dəfə işlədir,
+> sonra `ai-bootstrap new` komandası tapılmır. Qlobal install ilə komanda hər yerdə əlçatandır.
+> Alternativ: hər dəfə `npx @azerogluemin/ai-bootstrap@latest <command>` yazmaq (uzun).
 
 ---
 
@@ -41,7 +48,11 @@ Beləliklə **AI Creator** layihən və **SaaS** layihən fərqli skill dəstlə
 ## İlk dəfə qurulum (bir dəfə maşına)
 
 ```bash
-npx @azerogluemin/ai-bootstrap
+# Qlobal install — ai-bootstrap komandasını maşına əlavə edir
+npm install -g @azerogluemin/ai-bootstrap
+
+# Sonra wizard:
+ai-bootstrap
 ```
 
 Wizard 6 addım soruşur:
@@ -179,10 +190,11 @@ ai-bootstrap remove security-auditor   # silmək
 
 ### Setup + sync
 ```bash
-npx @azerogluemin/ai-bootstrap    # ilk qurulum (user scope, bir dəfə)
-ai-bootstrap new                    # bu qovluğa layihə bundle (hər layihədə)
-ai-bootstrap update                 # yeni versiyada skill-ləri yenilə
-ai-bootstrap doctor                 # sağlamlıq yoxlaması
+npm install -g @azerogluemin/ai-bootstrap    # bir dəfə qlobal install
+ai-bootstrap                                   # ilk wizard (user scope foundation)
+ai-bootstrap new                               # bu qovluğa layihə bundle (hər layihə)
+ai-bootstrap update                            # yeni versiyada skill-ləri yenilə
+ai-bootstrap doctor                            # sağlamlıq yoxlaması
 ```
 
 ### Skill management

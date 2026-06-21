@@ -5,6 +5,23 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] — 2026-06-21
+
+README quick-start fixed — global install upfront.
+
+### Changed
+
+- README quick-start was inconsistent: step 1 used `npx` (one-shot, no install),
+  step 2 used `ai-bootstrap new` (requires global install). Users hit
+  `zsh: command not found: ai-bootstrap` after the wizard.
+- Quick-start is now 3 steps: `npm install -g` → `ai-bootstrap` (wizard) →
+  `ai-bootstrap new` (per project)
+- Explanation added: why global install (so `new` / `add` / `doctor` are
+  available everywhere) + alternative (always-`npx`)
+- No functional code changes vs. 0.4.1.
+
+[0.4.2]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.4.2
+
 ## [0.4.1] — 2026-06-21
 
 README rewrite — published so npm.com lands on the new usage guide.

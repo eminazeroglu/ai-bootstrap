@@ -8,18 +8,24 @@
 [![Node ≥22](https://img.shields.io/badge/Node-%E2%89%A522-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Tests](https://img.shields.io/badge/tests-142%20passing-brightgreen)](./packages/cli/tests)
 
-## Quick start (2 addım)
+## Quick start (3 addım)
 
 ```bash
-# 1) Bir dəfə maşına (universal foundation)
-npx @azerogluemin/ai-bootstrap
+# 1) Bir dəfə qlobal install
+npm install -g @azerogluemin/ai-bootstrap
 
-# 2) Hər yeni layihədə (layihəyə xas bundle)
+# 2) Bir dəfə user-scope wizard (universal foundation)
+ai-bootstrap
+
+# 3) Hər yeni layihədə (layihəyə xas bundle)
 cd ~/Projects/yeni-layihə
 ai-bootstrap new
 ```
 
 Bitdi. Hər layihədə sadəcə `claude` — uyğun skill dəsti özü yüklənir.
+
+> `npm install -g` lazımdır ki, `ai-bootstrap new` komandası hər qovluqda işləsin.
+> Alternativ: hər dəfə `npx @azerogluemin/ai-bootstrap@latest <cmd>` (uzun, tövsiyə olunmur).
 
 ---
 
@@ -70,8 +76,9 @@ Token israfı yoxdur, skill qarışıqlığı yoxdur.
 
 ```bash
 # Setup
-npx @azerogluemin/ai-bootstrap     # ilk qurulum (user scope)
-ai-bootstrap new                     # layihə bundle (project scope)
+npm install -g @azerogluemin/ai-bootstrap     # bir dəfə qlobal install
+ai-bootstrap                                    # ilk wizard (user scope foundation)
+ai-bootstrap new                                # layihə bundle (hər layihədə)
 
 # Skill management
 ai-bootstrap add <names>             # əlavə skill/agent
