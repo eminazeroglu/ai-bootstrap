@@ -5,6 +5,23 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] — 2026-06-21
+
+README rewrite — published so npm.com lands on the new usage guide.
+
+### Changed
+
+- packages/cli/README.md — full rewrite (AZ):
+  - 2-step TL;DR quick start
+  - User scope vs. project scope explained with table
+  - 5 real workflow scenarios (Creator/IG, SaaS, SMM, add bundle, remove)
+  - All commands grouped by purpose (setup, mgmt, MCP, backup, telemetry)
+  - 63 MCP server categorized list
+  - Troubleshooting section (5 common issues)
+- No functional code changes vs. 0.4.0.
+
+[0.4.1]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.4.1
+
 ## [0.4.0] — 2026-06-21
 
 Incremental skill + agent management — add / remove / list.
