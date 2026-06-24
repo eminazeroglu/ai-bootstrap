@@ -18,6 +18,7 @@ import { runNewCommand } from './commands/new.js';
 import { runAddCommand, runRemoveCommand, runListCommand } from './commands/skills.js';
 import { runHelpCommand } from './commands/help.js';
 import { runScanCommand } from './commands/scan.js';
+import { runIntegrationCommand } from './commands/integration.js';
 import { trackEvent } from './utils/telemetry.js';
 
 async function runDefaultWizard(): Promise<void> {
@@ -71,7 +72,8 @@ ${chalk.bold('Usage:')}
   ${chalk.cyan('ai-bootstrap list [--all]')}      List installed (project / user / all)
   ${chalk.cyan('ai-bootstrap update')}            Re-sync skills + agents from template bundle
   ${chalk.cyan('ai-bootstrap doctor')}            Diagnose install health (symlinks, MCPs, creds)
-  ${chalk.cyan('ai-bootstrap mcp <sub>')}         MCP management — list, installed, credentials
+  ${chalk.cyan('ai-bootstrap mcp <sub>')}         MCP management — list, add, installed, credentials
+  ${chalk.cyan('ai-bootstrap integration <sub>')} Local MCP server idarəsi (status/install/doctor)
   ${chalk.cyan('ai-bootstrap backup <sub>')}      ~/.claude/ git backup — init, sync, pull, status
   ${chalk.cyan('ai-bootstrap telemetry <sub>')}   Anonymous telemetry opt-in/out (status, on, off)
   ${chalk.cyan('ai-bootstrap --version')}         Print version
@@ -100,6 +102,10 @@ async function main(): Promise<void> {
 
   if (cmd === 'scan') {
     return runScanCommand(args.slice(1));
+  }
+
+  if (cmd === 'integration' || cmd === 'integrations') {
+    return runIntegrationCommand(args.slice(1));
   }
 
   if (cmd === '--version' || cmd === '-v' || cmd === 'version') {

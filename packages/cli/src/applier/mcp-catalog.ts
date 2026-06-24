@@ -314,16 +314,25 @@ export const MCP_CATALOG: Record<string, McpCatalogEntry> = {
   },
 
   // ════ Social media ════
+  // v0.6.1 — Instagram MCP now uses a LOCAL server at ~/.claude/integrations/instagram-mcp/
+  // Server is shipped separately (or copied from azerogluemin.az project).
+  // The public @modelcontextprotocol/server-instagram package does not exist.
+  // 15-tool server: ig_profile, ig_list_media, ig_account_insights, ig_media_insights,
+  // ig_list_comments, ig_reply_comment, ig_delete_comment, ig_list_conversations,
+  // ig_list_messages, ig_send_dm, ig_publish_image, ig_publish_video, ig_publish_reel,
+  // ig_publish_carousel.
   instagram: {
     id: 'instagram',
-    name: 'Instagram (Graph API)',
+    name: 'Instagram (Graph API, local server)',
     category: 'social',
-    description: 'Instagram Business — media, comments, DMs, insights',
-    command: 'npx',
-    args: ['-y', '@modelcontextprotocol/server-instagram'],
-    env: { INSTAGRAM_ACCESS_TOKEN: '${INSTAGRAM_ACCESS_TOKEN}', INSTAGRAM_BUSINESS_ID: '${INSTAGRAM_BUSINESS_ID}' },
-    credentialKeys: ['INSTAGRAM_ACCESS_TOKEN', 'INSTAGRAM_BUSINESS_ID'],
-    credentialHelp: 'Get long-lived token from Meta Developer Console (Graph API v18+)',
+    description: 'Instagram Business — media, comments, DMs, insights (15-tool local Node server)',
+    command: 'node',
+    args: ['${HOME}/.claude/integrations/instagram-mcp/server/src/index.js'],
+    env: {},
+    credentialKeys: [],
+    credentialHelp:
+      'Server öz .env-ini avtomatik yükləyir: ~/.claude/integrations/instagram-mcp/.env (META_APP_ID, META_APP_SECRET, IG_ACCESS_TOKEN, IG_BUSINESS_ACCOUNT_ID, IG_USERNAME). Yoxdursa: ai-bootstrap integration install instagram',
+    source: 'local: ~/.claude/integrations/instagram-mcp (15 tools)',
   },
   twitter: {
     id: 'twitter',

@@ -5,6 +5,32 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] — 2026-06-24
+
+Real Instagram MCP fix + new `integration` command for local MCP servers.
+
+### Fixed
+
+- **Instagram MCP catalog entry was fabricated**: pointed to `@modelcontextprotocol/server-instagram` which does NOT exist on npm (Rule 16 violation discovered in real testing).
+- Now uses a LOCAL Node server at `~/.claude/integrations/instagram-mcp/` (15-tool real Graph API implementation: ig_profile, ig_publish_reel, ig_list_messages, etc.). Server is shipped separately and copied from a working source (e.g., `azerogluemin.az/projects/azerogluemin-ai/instagram-mcp`).
+- Env vars (META_APP_ID, IG_ACCESS_TOKEN, IG_BUSINESS_ACCOUNT_ID, etc.) are loaded by the server itself from `~/.claude/integrations/instagram-mcp/.env` — no shell env required.
+
+### Added — `ai-bootstrap integration <sub>` command
+
+For MCP servers that ship as local Node code instead of public npm packages:
+
+- `ai-bootstrap integration status` — list installed integrations + health
+- `ai-bootstrap integration install <name>` — npm install deps + verify .env + first boot
+- `ai-bootstrap integration doctor <name>` — full health check (file/deps/env/boot)
+
+Currently supports: `instagram` (15-tool local server). Architecture is extensible — drop a new server into `~/.claude/integrations/<name>/` and register it in `INTEGRATIONS` map.
+
+### Why
+
+Some valuable MCP integrations exist only as project-local code (custom Graph API clients, internal tools). ai-bootstrap now first-classes that pattern instead of forcing everything through the npm registry.
+
+[0.6.1]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.6.1
+
 ## [0.6.0] — 2026-06-21
 
 Preset-based project bootstrap — folder scaffolding + CLAUDE.md per preset.
