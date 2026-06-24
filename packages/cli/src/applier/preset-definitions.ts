@@ -89,7 +89,7 @@ export const SAAS_DEVELOPMENT: PresetDefinition = {
   ],
   mcps: [
     'github', 'postgres', 'supabase', 'vercel', 'sentry', 'stripe', 'linear',
-    'notion', 'openai', 'anthropic', 'brave-search', 'posthog', 'ga4', 'figma',
+    'notion', 'openai', 'brave-search', 'posthog', 'ga4', 'figma',
     'playwright', 'browserbase', 'hubspot', 'atlassian', 'slack', 'discord',
     'elevenlabs', 'perplexity',
   ],
@@ -163,8 +163,7 @@ export const SOCIAL_PAGE: PresetDefinition = {
     // Productivity
     'notion', 'airtable',
     // AI gen
-    'openai', 'replicate', 'anthropic',
-    // Comms
+    'openai', 'replicate',     // Comms
     'telegram',
   ],
 };
@@ -216,7 +215,7 @@ export const AI_STUDIO: PresetDefinition = {
     // Visual
     'figma', 'replicate', 'youtube-transcript',
     // AI
-    'openai', 'anthropic', 'perplexity',
+    'openai', 'perplexity',
     // Research
     'brave-search', 'firecrawl', 'tavily',
     // Productivity

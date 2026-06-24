@@ -5,6 +5,46 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3] — 2026-06-24
+
+MCP catalog audit — replace fabricated packages with real ones.
+
+### Audited
+
+Ran `npm view <package>` against all 49 npm packages in the catalog. Results:
+- ✓ **42 real** packages
+- ✗ **7 fabricated** packages (404 from npm registry)
+
+### Fixed
+
+Replaced fabricated entries with verified-real alternatives (npm version stamped):
+
+| ID | Before (fabricated) | After (real) |
+|---|---|---|
+| twitter | `@enescinr/twitter-mcp` (typo: missing 'a') | `@enescinar/twitter-mcp@0.2.0` |
+| elevenlabs | `@elevenlabs/elevenlabs-mcp` | `elevenlabs-mcp-enhanced@0.9.11` |
+| meta | `@meta/mcp-ads` | `meta-ads-mcp@1.1.0` |
+| discord | `@netixc/mcp-discord` | `mcp-discord@1.3.4` |
+| asana | `mcp-server-asana` | `@roychri/mcp-server-asana@1.8.0` |
+| spotify | `spotify-mcp-server` | `spotify-mcp@0.1.4` |
+
+### Removed
+
+- `anthropic` MCP entry — removed entirely. There is no Anthropic MCP server
+  (Claude IS Anthropic's product; Claude Code already talks to the Claude API
+  natively). The fabricated `mcp-anthropic` package never existed.
+- Removed `'anthropic'` from SaaS, Social Page, AI Studio preset MCP lists.
+
+### Verification methodology
+
+For future contributors: when adding an MCP, run:
+```bash
+npm view <package-name> version
+```
+If 404, the package is fabricated. Find a real alternative or do not add it.
+
+[0.6.3]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.6.3
+
 ## [0.6.2] — 2026-06-24
 
 Instagram MCP server **bundled inside ai-bootstrap package** — works on any computer.
