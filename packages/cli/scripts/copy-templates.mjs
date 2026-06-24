@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Copy ../templates/{skills,agents,home} into ./templates/ for npm publish.
+// Copy ../templates/{skills,agents,home,integrations} into ./templates/ for npm publish.
 //
 // Runs before `npm pack` / `npm publish` so the published @azerogluemin/ai-bootstrap
 // tarball contains all skill + agent template directories self-contained.
@@ -27,7 +27,7 @@ if (existsSync(localTemplates)) {
 }
 mkdirSync(localTemplates, { recursive: true });
 
-const subdirs = ['skills', 'agents', 'home'];
+const subdirs = ['skills', 'agents', 'home', 'integrations'];
 let totalCopied = 0;
 
 for (const sub of subdirs) {

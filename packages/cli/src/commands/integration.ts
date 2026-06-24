@@ -7,29 +7,50 @@
 //   - doctor <name>  — verify a specific integration (npm deps, .env, server boots)
 
 import chalk from 'chalk';
-import { existsSync, statSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, statSync, readdirSync, readFileSync, cpSync, copyFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execa } from 'execa';
 import { HOME, ensureDir } from '../utils/paths.js';
+
+/**
+ * Resolve absolute path to the bundled integrations folder.
+ * Lookup order:
+ *   1) <cli-root>/templates/integrations/  — published npm pkg (via prepack)
+ *   2) ../templates/integrations/          — monorepo dev sibling
+ */
+function bundledIntegrationsRoot(): string {
+  const here = fileURLToPath(import.meta.url);
+  const cliRoot = resolve(here, '..', '..', '..');
+  const candidates = [
+    join(cliRoot, 'templates', 'integrations'),
+    resolve(cliRoot, '..', 'templates', 'integrations'),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  return candidates[0];
+}
 
 const INTEGRATIONS_DIR = join(HOME, '.claude', 'integrations');
 
 interface IntegrationInfo {
   id: string;
+  /** Folder name under both bundled templates and ~/.claude/integrations/ */
+  folderName: string;
   name: string;
-  serverPath: string;       // path to index.js
-  packageJsonPath: string;
-  envPath: string;
+  /** Relative path within the integration folder to the server entry */
+  serverRelPath: string;
+  /** Required env vars (loaded by server's own dotenv from <folder>/.env) */
   requiredEnvKeys: string[];
 }
 
 const INTEGRATIONS: Record<string, IntegrationInfo> = {
   instagram: {
     id: 'instagram',
+    folderName: 'instagram-mcp',
     name: 'Instagram (15-tool local MCP server)',
-    serverPath: join(INTEGRATIONS_DIR, 'instagram-mcp', 'server', 'src', 'index.js'),
-    packageJsonPath: join(INTEGRATIONS_DIR, 'instagram-mcp', 'server', 'package.json'),
-    envPath: join(INTEGRATIONS_DIR, 'instagram-mcp', '.env'),
+    serverRelPath: 'server/src/index.js',
     requiredEnvKeys: [
       'META_APP_ID',
       'META_APP_SECRET',
@@ -39,6 +60,19 @@ const INTEGRATIONS: Record<string, IntegrationInfo> = {
     ],
   },
 };
+
+/** Resolved per-install paths. */
+function paths(info: IntegrationInfo) {
+  const installedFolder = join(INTEGRATIONS_DIR, info.folderName);
+  return {
+    installedFolder,
+    serverPath: join(installedFolder, info.serverRelPath),
+    serverDir: join(installedFolder, 'server'),
+    packageJsonPath: join(installedFolder, 'server', 'package.json'),
+    envPath: join(installedFolder, '.env'),
+    envExamplePath: join(installedFolder, '.env.example'),
+  };
+}
 
 function printHelp(): void {
   console.log(`
@@ -64,17 +98,18 @@ function statusList(): void {
   console.log(chalk.bold(`\nIntegrations directory: ${INTEGRATIONS_DIR}\n`));
 
   for (const info of Object.values(INTEGRATIONS)) {
-    const installed = existsSync(info.serverPath);
-    const hasDeps = installed && existsSync(join(info.serverPath, '..', '..', 'node_modules'));
-    const hasEnv = existsSync(info.envPath);
+    const p = paths(info);
+    const installed = existsSync(p.serverPath);
+    const hasDeps = installed && existsSync(join(p.serverDir, 'node_modules'));
+    const hasEnv = existsSync(p.envPath);
     const icon = installed && hasDeps && hasEnv ? chalk.green('✓') : installed ? chalk.yellow('⚠') : chalk.red('✗');
     console.log(`  ${icon} ${chalk.cyan(info.id.padEnd(14))} ${info.name}`);
     if (!installed) {
       console.log(chalk.dim(`     yox — ${chalk.cyan('ai-bootstrap integration install ' + info.id)} qaçır`));
     } else {
-      console.log(chalk.dim(`     server: ${info.serverPath}`));
+      console.log(chalk.dim(`     server: ${p.serverPath}`));
       console.log(chalk.dim(`     deps:   ${hasDeps ? 'OK' : chalk.yellow('npm install lazımdır')}`));
-      console.log(chalk.dim(`     .env:   ${hasEnv ? 'OK' : chalk.yellow('təyin edilməyib')}`));
+      console.log(chalk.dim(`     .env:   ${hasEnv ? 'OK' : chalk.yellow('yaradılmayıb (.env.example-dan kopyala + doldur)')}`));
     }
     console.log('');
   }
@@ -89,47 +124,53 @@ async function installIntegration(id: string): Promise<void> {
   }
 
   ensureDir(INTEGRATIONS_DIR);
-
-  if (!existsSync(info.serverPath)) {
-    console.log(chalk.yellow(`⚠ Server faylı yoxdur: ${info.serverPath}`));
-    console.log('');
-    console.log(chalk.bold('Necə qurulur (Instagram MCP misalı):'));
-    console.log(`  1. Server kodu hazır (məs. ${chalk.cyan('azerogluemin.az/projects/azerogluemin-ai/instagram-mcp')})`);
-    console.log(`  2. Kopyala: ${chalk.cyan('cp -R <source>/instagram-mcp ~/.claude/integrations/')}`);
-    console.log(`  3. Yenidən qaçır: ${chalk.cyan('ai-bootstrap integration install ' + id)}`);
-    console.log('');
-    console.log(chalk.dim(`Future: gələcəkdə ai-bootstrap özü standartlaşdırılmış integration-ları yükləyəcək.`));
-    process.exit(1);
-  }
+  const p = paths(info);
 
   console.log(chalk.bold(`\nIntegration: ${chalk.cyan(info.name)}\n`));
-  console.log(chalk.dim(`  Server: ${info.serverPath}`));
 
-  // Install npm deps
-  const serverDir = join(info.serverPath, '..', '..');
+  // Step 1: Copy bundled source from ai-bootstrap package if not already installed
+  if (!existsSync(p.serverPath)) {
+    const bundledRoot = bundledIntegrationsRoot();
+    const bundledFolder = join(bundledRoot, info.folderName);
+    if (!existsSync(bundledFolder)) {
+      console.log(chalk.red(`✗ Bundled source tapılmadı: ${bundledFolder}`));
+      console.log(chalk.dim('   ai-bootstrap paketinə düzgün bundle edilməyib (prepack sınadı?)'));
+      process.exit(1);
+    }
+    console.log(chalk.dim(`  Bundled mənbədən kopyalanır: ${bundledFolder}`));
+    cpSync(bundledFolder, p.installedFolder, { recursive: true, dereference: true });
+    console.log(chalk.green(`  ✓ Server kodu yazıldı: ${p.installedFolder}`));
+  } else {
+    console.log(chalk.dim(`  Server artıq quraşdırılıb: ${p.serverPath}`));
+  }
+
+  // Step 2: Install npm dependencies
   console.log(chalk.dim('  npm install...'));
   try {
-    await execa('npm', ['install'], { cwd: serverDir, stdio: 'pipe' });
+    await execa('npm', ['install'], { cwd: p.serverDir, stdio: 'pipe' });
     console.log(chalk.green('  ✓ Dependencies installed'));
   } catch (err) {
     console.log(chalk.red(`  ✗ npm install failed: ${err instanceof Error ? err.message : err}`));
     process.exit(1);
   }
 
-  // Check .env
-  if (!existsSync(info.envPath)) {
-    console.log(chalk.yellow(`  ⚠ .env yoxdur: ${info.envPath}`));
-    const examplePath = join(info.envPath, '..', '.env.example');
-    if (existsSync(examplePath)) {
-      console.log(chalk.dim(`     Şablon: ${examplePath} — kopyala + doldur`));
+  // Step 3: Seed .env from .env.example if missing
+  if (!existsSync(p.envPath)) {
+    if (existsSync(p.envExamplePath)) {
+      copyFileSync(p.envExamplePath, p.envPath);
+      console.log(chalk.green(`  ✓ .env yaradıldı .env.example-dan (credential-ları doldur!)`));
+    } else {
+      console.log(chalk.yellow(`  ⚠ .env yoxdur və .env.example tapılmadı`));
     }
   } else {
-    console.log(chalk.green(`  ✓ .env mövcuddur`));
+    console.log(chalk.green(`  ✓ .env mövcuddur (toxunulmadı)`));
   }
 
   console.log('');
   console.log(chalk.green(`✓ Integration hazırdır: ${id}`));
-  console.log(chalk.dim(`  Növbəti: ${chalk.cyan('ai-bootstrap mcp add ' + id)} → MCP catalog-a əlavə`));
+  console.log(chalk.dim(`  1. ${chalk.cyan('nano ' + p.envPath)} — credential-ları doldur`));
+  console.log(chalk.dim(`  2. ${chalk.cyan('ai-bootstrap integration doctor ' + id)} — sağlamlıq yoxla`));
+  console.log(chalk.dim(`  3. ${chalk.cyan('ai-bootstrap mcp add ' + id)} — Claude Code-a bağla`));
   console.log('');
 }
 
@@ -140,22 +181,23 @@ async function doctorIntegration(id: string): Promise<void> {
     process.exit(1);
   }
 
+  const p = paths(info);
   console.log(chalk.bold(`\nDoctor: ${chalk.cyan(info.name)}\n`));
 
   // 1. Server file
-  if (!existsSync(info.serverPath)) {
-    console.log(chalk.red(`✗ Server faylı yoxdur: ${info.serverPath}`));
+  if (!existsSync(p.serverPath)) {
+    console.log(chalk.red(`✗ Server faylı yoxdur: ${p.serverPath}`));
+    console.log(chalk.dim(`   Qaçır: ${chalk.cyan('ai-bootstrap integration install ' + id)}`));
     process.exit(1);
   }
   console.log(chalk.green(`✓ Server faylı mövcuddur`));
 
   // 2. package.json
-  const pkg = JSON.parse(readFileSync(info.packageJsonPath, 'utf-8'));
+  const pkg = JSON.parse(readFileSync(p.packageJsonPath, 'utf-8'));
   console.log(chalk.dim(`  Package: ${pkg.name}@${pkg.version}`));
 
   // 3. node_modules
-  const serverDir = join(info.serverPath, '..', '..');
-  const nodeModulesPath = join(serverDir, 'node_modules');
+  const nodeModulesPath = join(p.serverDir, 'node_modules');
   if (!existsSync(nodeModulesPath)) {
     console.log(chalk.red(`✗ node_modules yoxdur — qaçır: ai-bootstrap integration install ${id}`));
     process.exit(1);
@@ -164,10 +206,13 @@ async function doctorIntegration(id: string): Promise<void> {
   console.log(chalk.green(`✓ Dependencies (${depCount} package)`));
 
   // 4. .env
-  if (!existsSync(info.envPath)) {
-    console.log(chalk.yellow(`⚠ .env yoxdur: ${info.envPath}`));
+  if (!existsSync(p.envPath)) {
+    console.log(chalk.yellow(`⚠ .env yoxdur: ${p.envPath}`));
+    if (existsSync(p.envExamplePath)) {
+      console.log(chalk.dim(`   Şablon: ${p.envExamplePath} — kopyala + doldur`));
+    }
   } else {
-    const envContent = readFileSync(info.envPath, 'utf-8');
+    const envContent = readFileSync(p.envPath, 'utf-8');
     const missing: string[] = [];
     for (const key of info.requiredEnvKeys) {
       if (!new RegExp(`^${key}=.+`, 'm').test(envContent)) missing.push(key);
@@ -183,7 +228,7 @@ async function doctorIntegration(id: string): Promise<void> {
   console.log(chalk.dim('  Boot test...'));
   try {
     const res = await execa('node', ['-e', `
-      import('${info.serverPath}').then(() => {
+      import('${p.serverPath}').then(() => {
         setTimeout(() => process.exit(0), 500);
       }).catch(e => { console.error(e.message); process.exit(1); });
     `], { timeout: 5000, reject: false });

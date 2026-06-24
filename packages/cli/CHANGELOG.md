@@ -5,6 +5,48 @@ All notable changes to `@azerogluemin/ai-bootstrap` are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.2] — 2026-06-24
+
+Instagram MCP server **bundled inside ai-bootstrap package** — works on any computer.
+
+### Fixed (the real fix)
+
+v0.6.1 added the `integration` command but the Instagram MCP server source was
+NOT inside the ai-bootstrap package. Users on a fresh machine had nothing to install.
+
+v0.6.2 bundles the full 15-tool Instagram MCP server (5 source files + package.json
++ .env.example + README + meta-app-config docs) inside the npm tarball.
+
+### Architecture
+
+- New: `packages/templates/integrations/<name>/` — source-of-truth for local MCP servers
+- `prepack` (copy-templates.mjs) now includes `integrations/` alongside skills/agents
+- `ai-bootstrap integration install <name>`:
+  1. Looks up bundled source from package's `templates/integrations/<name>/`
+  2. Copies to `~/.claude/integrations/<name>/`
+  3. Runs `npm install` in `server/`
+  4. Seeds `.env` from `.env.example` (idempotent — won't overwrite existing)
+  5. Prints next-steps (fill .env, doctor, mcp add)
+
+### Workflow on a fresh machine
+
+```bash
+npm install -g @azerogluemin/ai-bootstrap@latest
+ai-bootstrap                                    # foundation + free MCPs
+ai-bootstrap integration install instagram      # copy + npm install + seed .env
+nano ~/.claude/integrations/instagram-mcp/.env  # add Meta App ID + token
+ai-bootstrap integration doctor instagram       # 5/5 health check
+ai-bootstrap mcp add instagram                  # bind to Claude Code
+claude                                          # ig_profile etc. available
+```
+
+### Tarball impact
+
+- v0.6.1 → v0.6.2: +9 files, ~26 KB (server code + docs)
+- Still under 1.3 MB total
+
+[0.6.2]: https://github.com/eminazeroglu/ai-bootstrap/releases/tag/v0.6.2
+
 ## [0.6.1] — 2026-06-24
 
 Real Instagram MCP fix + new `integration` command for local MCP servers.

@@ -1,0 +1,21 @@
+{
+  "name": "azerogluemin-ai-instagram-mcp",
+  "version": "0.1.0",
+  "description": "Custom MCP server for managing @azerogluemin_ai via Instagram Graph API",
+  "type": "module",
+  "private": true,
+  "main": "src/index.js",
+  "bin": {
+    "azerogluemin-ai-instagram-mcp": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "dotenv": "^16.4.7"
+  }
+}
