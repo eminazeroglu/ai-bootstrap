@@ -1,0 +1,15 @@
+{
+  "_comment": "Müştəri konfiqurasiyası. Tokenlər BURADA YOX — yalnız env adlarına referans. Bu faylı clients.json-a kopyala və öz müştərilərini əlavə et.",
+  "clients": [
+    {
+      "id": "sahil-transport",
+      "name": "Sahil Transport",
+      "platforms": {
+        "instagram": {
+          "accessTokenEnv": "SAHIL_INSTAGRAM_ACCESS_TOKEN",
+          "accountIdEnv": "SAHIL_INSTAGRAM_ACCOUNT_ID"
+        }
+      }
+    }
+  ]
+}
