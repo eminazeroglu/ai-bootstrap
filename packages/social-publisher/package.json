@@ -1,0 +1,39 @@
+{
+  "name": "@azerogluemin/social-publisher",
+  "version": "0.1.0",
+  "description": "Scheduled, multi-platform, multi-client social media publisher — runs 24/7 (Railway). First platform: Instagram.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'TODO: eslint'",
+    "test": "tsc --noEmit && node --test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "author": {
+    "name": "Emin Azəroğlu",
+    "url": "https://github.com/eminazeroglu"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eminazeroglu/ai-bootstrap.git",
+    "directory": "packages/social-publisher"
+  }
+}

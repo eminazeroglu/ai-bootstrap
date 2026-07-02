@@ -437,14 +437,8 @@ function socialGitignore(): string {
 function scaffoldAiStudio(opts: ScaffoldOptions): ScaffoldResult {
   const r: ScaffoldResult = { foldersCreated: [], filesWritten: [], filesSkipped: [] };
 
-  // Projects + days
+  // Projects — hər iş bir project kimi açılır (days/ YOXDUR)
   ensureFolder(opts.cwd, 'projects', r);
-
-  const today = todayDateStr();
-  const dailyBase = `days/${today}`;
-  for (const sub of ['characters', 'shots', 'video', 'music', 'final']) {
-    ensureFolder(opts.cwd, `${dailyBase}/${sub}`, r);
-  }
 
   // References
   for (const f of ['references/pixar-style', 'references/cinematography', 'references/color-grading']) {
@@ -477,16 +471,16 @@ ${o.description || '(təsvir verilməyib — buraya yaz)'}
 
 AI Studio — AI ilə video / şəkil / musiqi production. Müştəri sifarişləri + şəxsi eksperimentlər. Sosial nəşr yoxdur.
 
-## Strukrur
+## Struktur
 
 \`\`\`
-projects/                    # Müştəri / portfolio layihələri (uzunmüddətli)
+projects/                    # Bütün işlər BURDA — hər iş = bir project
 ├── <project-name>/
-│   ├── brief.md
-│   ├── characters/  locations/  shots/  video/  music/
-days/                        # Gündəlik eksperiment + təcrübə
-└── YYYY-MM-DD/
-    ├── characters/  shots/  video/  music/  final/
+│   ├── brief.md             # Project məlumatları: məqsəd, format, stil, deadline, müştəri
+│   ├── script.md            # Ssenari / skript (səhnələr, dialoqlar)
+│   ├── characters.md        # Obrazların siyahısı + təsviri (reference promptlar bura bağlanır)
+│   ├── WORKFLOW.md          # Pipeline state: hansı mərhələdəyik (showrunner bunu izləyir)
+│   └── characters/  locations/  shots/  video/  music/  final/
 references/                  # Stil + texniki referans
 ├── pixar-style/
 ├── cinematography/
@@ -494,6 +488,30 @@ references/                  # Stil + texniki referans
 prompts-library/             # Təsdiqlənmiş prompt-lar
 ├── characters/  shots/  video/  music/
 \`\`\`
+
+> \`days/\` qovluğu **yoxdur**. Bu studio sırf project-əsaslıdır. Gündəlik eksperiment də olsa, bir project kimi \`projects/\`-də açılır.
+
+> **Hər projectin özünə aid MD faylları var.** Yeni project açılanda bu 4 fayl həmişə yaranır: \`brief.md\`, \`script.md\`, \`characters.md\`, \`WORKFLOW.md\`. Bunlar projectin "yaddaşıdır" — Claude Code projecti bunlardan tanıyır.
+
+## Sərt qayda — Project-əsaslı iş axını (entry flow)
+
+Bu studioda hər iş **bir project** kimi başlayır. İstifadəçi yeni işə başlamaq istəyəndə bu addımları SIRAYLA izlə:
+
+1. **Project adı soruş** — "Project adı nədir?" → \`projects/<project-name>/\` yarat (kebab-case).
+2. **Project məlumatlarını soruş** — ardıcıl olaraq:
+   - Ssenari / brief (var? yox? danış)
+   - Məqsəd / format (reel, qısa film, reklam, klip, video, şəkil, musiqi...)
+   - Stil / referans (pixar, cinematic, və s.)
+   - Deadline / müştəri (varsa)
+3. **Project MD fayllarını yarat** — \`projects/<project-name>/\` daxilində bu 4 fayl həmişə yaranır:
+   - \`brief.md\` — toplanan bütün məlumat (məqsəd, format, stil, deadline, müştəri)
+   - \`script.md\` — ssenari mətni (varsa doldur, yoxdursa şablon saxla)
+   - \`characters.md\` — obrazlar siyahısı (ssenaridən çıxar, yoxdursa boş şablon)
+   - \`WORKFLOW.md\` — pipeline state tracker (cari mərhələ qeyd olunur)
+4. **Projecti tanı** — bundan sonra bu project üzərində işləyirik. Hər referans və hər iş faylı \`projects/<project-name>/\` daxilindədir.
+5. **İşə başla** — pipeline-a keç (script → storyboard → image → video → music), uyğun skill-ləri çağır. Hər mərhələdə \`WORKFLOW.md\`-i yenilə.
+
+> Mövcud project açılırsa: əvvəlcə \`brief.md\` + \`WORKFLOW.md\` oxu → kontekst və cari mərhələni bərpa et → davam et.
 
 ## Sərt qayda — Prompt əvvəl, MD sonra (vizual təsdiqsiz fayl yaratma)
 
@@ -531,10 +549,12 @@ ${o.description || '(qısa təsvir)'}
 
 ## Workflow
 
-1. Yeni layihə → \`projects/<name>/\` yarat + brief.md
-2. Gündəlik eksperiment → \`days/YYYY-MM-DD/\`
-3. Stil refs → \`references/\`-yə top
-4. Uğurlu prompt → \`prompts-library/\`-yə əlavə
+Hər iş = bir project. Yeni işə başlayanda Claude Code:
+1. Project adı soruşur → \`projects/<name>/\` yaradır
+2. Project məlumatlarını soruşur (ssenari, məqsəd, stil, deadline) → \`brief.md\`-ə yazır
+3. Projecti tanıyır → işə başlayır
+4. Stil refs → \`references/\`-yə top
+5. Uğurlu prompt → \`prompts-library/\`-yə əlavə
 
 ## Claude Code
 
