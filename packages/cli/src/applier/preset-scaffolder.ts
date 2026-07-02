@@ -89,12 +89,104 @@ function scaffoldSaas(opts: ScaffoldOptions): ScaffoldResult {
   ];
   for (const d of docs) writeIfNew(opts.cwd, `docs/${d.name}`, d.body, r);
 
+  // STANDARDS.md — tək həqiqət mənbəyi (dünya-standartı qaydalar)
+  writeIfNew(opts.cwd, 'docs/STANDARDS.md', saasStandardsMd(), r);
+  // Plan qovluğu indeksi (PLAN-FIRST qaydası — planlar git-ə MD düşür)
+  writeIfNew(opts.cwd, 'docs/plans/README.md', saasPlansReadme(), r);
+
   // Root files
   writeIfNew(opts.cwd, 'CLAUDE.md', saasClaudeMd(opts), r);
   writeIfNew(opts.cwd, 'README.md', saasReadme(opts), r);
   writeIfNew(opts.cwd, '.gitignore', saasGitignore(), r);
 
   return r;
+}
+
+function saasStandardsMd(): string {
+  return `# STANDARDS.md — Dünya standartı qaydalar (tək həqiqət mənbəyi)
+
+> Bu sənəd **hər kod yazılmadan ƏVVƏL** baxılır. Qaydalar **konkret, yoxlana bilən** olmalıdır — təxmin yox.
+> Yeni qayda yalnız real tapıntı/maintainer-docs/audit əsasında əlavə olunur. CLAUDE.md "MÜHƏNDİS KİMİ DÜŞÜN" qaydası bu sənədi məcburi edir.
+>
+> ⛔ İş sonu DOORS-check (CLAUDE.md): yazdığın kodu bu siyahıya qarşı yoxla. Pozuntu → düzəlt, sonra "bitdi".
+
+## Texnologiya bazası
+
+<!-- Stack seçildikdə doldur: NestJS/Hono · Prisma · Postgres (RLS) · React/Next · TanStack Query · Tailwind · zod · vitest. Yeni texnologiya gələndə bu siyahını yenilə + decisions-log. -->
+
+---
+
+## Backend
+
+- **MƏCBURİ — atomik idempotency:** "oxu-sonra-yaz" (token rotation, finance, enrollment) tək \`$transaction\` daxilində compare-and-swap (\`updateMany({where:{...,revokedAt:null}})\` / \`SELECT FOR UPDATE\`). **QADAĞAN:** transaction-dan kənar read-then-write.
+- **MƏCBURİ — controller yalnız \`HttpException\` alt sinifləri** (Unauthorized/BadRequest/NotFound...). **QADAĞAN:** çılpaq \`throw new Error()\` (500 + yanlış status).
+- **MƏCBURİ — auth sabit-zaman:** login not-found yolunda dummy hash-verify (timing enumeration yox). Per-user failed-attempt lockout.
+- **MƏCBURİ — mərkəzi cookie:** maxAge mərkəzi servisdə config TTL-dən. **QADAĞAN:** cookie magic-number controller-də.
+- **MƏCBURİ — rate-limit** auth/mutasiya route-larda (Redis store) + global \`helmet\`. (OWASP A05/A07)
+- **MƏCBURİ — test:** hər endpoint ≥1 inteqrasiya testi (supertest+testcontainers); hər tenant modul iki-tenant izolyasiya testi (guard + RBAC fail-closed + throttle). **QADAĞAN:** yalnız service-unit "bitdi".
+- **QADAĞAN:** biznes modulda \`unscoped\` Prisma client (ESLint ilə bloklan; RLS backstop var). \`unscoped\` yalnız super-admin/auth.
+
+## Frontend
+
+- **⛔⛔ MƏCBURİ — SHARED KOMPONENT (BAŞ QAYDA):** UI element lazım olanda İŞDƏN ƏVVƏL \`packages/ui\` export-larını yoxla. Varsa işlət; yoxdursa əvvəl ui-a əlavə et. **QADAĞAN:** səhifə içində əl ilə \`<button>\`/\`<div>\` tab/badge "öz versiyam"; eyni UI 2+ yerdə.
+- **MƏCBURİ — session mərkəzi:** tək \`useMe()\` hook + key factory + staleTime. **QADAĞAN:** \`['me']\` inline string, ikiqat session sorğusu.
+- **MƏCBURİ — query-key yalnız factory-dən** (feature başına \`keys.ts\`). Kontekst keçidi = mərkəzi \`queryClient.clear()\` (açara ctx prefiksi yox).
+- **MƏCBURİ — tək axios instansı:** ui öz client export etməsin; token-li factory ötür. **401 → refresh-rotation interceptor** (tək in-flight promise).
+- **MƏCBURİ — modal request izolyasiyası:** hər modal \`withModalGuard\` (open=false → render yox). **QADAĞAN:** açılmamış komponentdən sorğu.
+- **MƏCBURİ — bir CRUD = \`useMutation\`** (əl-invalidate yox). Hər form = \`zodResolver\`+\`<Form><Field>\` (manual useState yox).
+- **MƏCBURİ — route:** data-router, \`route.lazy\`, hər ağaca \`errorElement\`.
+- **MƏCBURİ — i18n tam:** bütün user-facing mətn \`t()\`. Namespace başına fayl + lazy-load. **QADAĞAN:** hardcoded string, flat mega-JSON.
+- **MƏCBURİ — permission mərkəzi:** tək \`me.permissions\` Set lookup. **QADAĞAN:** rol-hardcode + divergent məntiq.
+
+## DB (Prisma + Postgres)
+
+- **MƏCBURİ — timestamptz:** instant sütunları \`@db.Timestamptz(3)\`; yalnız təqvim tarixləri \`@db.Date\`. **QADAĞAN:** instant üçün \`timestamp without time zone\`.
+- **MƏCBURİ — RLS hər tenant cədvəl/pivot:** \`tenant_id\` + \`ENABLE\`+\`FORCE ROW LEVEL SECURITY\` + policy (manual SQL migration — Prisma policy idarə etmir). **QADAĞAN:** yalnız app-filter.
+- **MƏCBURİ — referential integrity DB-də:** cross-cədvəl FK; cross-tenant istinadda membership assert.
+- **MƏCBURİ — adlandırılmış migration** (\`migrate dev --name\`); \`db push\` yalnız local throwaway.
+- **MƏCBURİ — runtime DB rolu non-owner** (RLS-ə tabe); migration owner \`DIRECT_URL\`.
+- **MƏCBURİ — index:** tez-tez range/sort olunan sütunlara (\`tenant_id\` + status/tarix) composite index.
+
+## Security / Crypto / DevSecOps
+
+- **MƏCBURİ — sirlər şifrəli istirahətdə:** bərpa edilə bilən sirlər AES-256-GCM envelope encryption.
+- **MƏCBURİ — CI security:** bloklayıcı gitleaks + \`pnpm audit --audit-level=high\` + Dependabot.
+- **MƏCBURİ — enumeration qoruması:** register/forgot enumeration-həssas axınlarda per-email throttle/captcha; forgot HƏMİŞƏ uğur qaytarır.
+- **MƏCBURİ — cookie:** HttpOnly + Secure + SameSite; access memory-only, refresh HttpOnly + rotating + reuse-detection.
+- **MƏCBURİ — OWASP Top 10:** hər PR-da nəzərə alınır (A01 access control / tenant izolyasiya başda).
+
+---
+
+## İstifadə qaydası
+
+1. **İşdən ƏVVƏL:** müvafiq bölməni oxu. Yeni pattern lazımdırsa — maintainer docs araşdır (təxmin yox), bura əlavə et.
+2. **İş SONU (DOORS-check):** yazdığını bu siyahıya qarşı yoxla. Pozuntu → düzəlt.
+3. **Yeni qayda:** yalnız real tapıntı/standart əsasında; decisions-log #NNN + bura.
+`;
+}
+
+function saasPlansReadme(): string {
+  return `# Planlar (docs/plans/)
+
+> Hər modul/böyük işdən ƏVVƏL plan burada MD olaraq saxlanır (CLAUDE.md PLAN-FIRST qaydası).
+> Plan \`~/.claude/plans/\`-də (git-dən kənar) QALMAMALIDIR — bütün qərarlar git-ə düşür.
+> İş bitəndə plan qalır (tarixçə).
+
+## İndeks
+
+| Plan | Modul | Status |
+|---|---|---|
+| _(hələ plan yoxdur)_ | — | — |
+
+## Format (hər plan faylı üçün)
+
+1. **Əhatə** — nə qurulur, nə qurulmur.
+2. **Mənbə/standart** — hansı docs/STANDARDS bölmələri, qərarlar.
+3. **Addımlar** — DB → backend → frontend → test → verification (faza sırası).
+4. **Test planı** — unit + inteqrasiya + izolyasiya + E2E.
+5. **Verification** — "bitdi" meyarları (yoxlana bilən).
+6. **Risklər / açıq suallar.**
+`;
 }
 
 function saasClaudeMd(o: ScaffoldOptions): string {
@@ -140,6 +232,92 @@ scripts/         # Build, deploy, seed scripts
 6. **decisions-log** append-only — \`docs/09-decisions-log.md\`-ə hər mühüm qərar #NNN.
 7. **Living docs** — kod dəyişdikdə \`docs/12-modules.md\` status yenilənir.
 8. **No silent catch** — error-lar həmişə loglanır + struktur cavab.
+
+## ⛔ Dünya-standartı sərt qaydalar (hər layihədə MÜTLƏQ)
+
+Bunlar universal mühəndislik prinsipləridir — primitiv/sızma xətalarının qarşısını alır. **Tək həqiqət mənbəyi:** \`docs/STANDARDS.md\` (işdən ƏVVƏL oxunur).
+
+### ⛔⛔⛔ KEYFİYYƏT > SÜRƏT (heç vaxt köşə kəsmə)
+
+**Heç vaxt modulu tez bitirmək üçün sürətli, keyfiyyətsiz həll təklif etmə.** Modulun DÜZGÜN işləməsi və iş axışının DOĞRU olması həmişə sürətli/keyfiyyətsiz bitməsindən üstündür. ❌ "MVP üçün sadələşdirək / sonra edək / əsas işləyir" deyib iş axınının hissəsini atlamaq QADAĞAN. ✅ Hər iş axını TAM, düzgün, real işləyən — bütün addımlar, edge case, validasiya, təhlükəsizlik. "Bitdi" yalnız test+doğrulama ilə. Şübhə olanda keyfiyyəti seç.
+
+### ⛔⛔⛔ PLAN-FIRST (hər modul/böyük işdən ƏVVƏL)
+
+Hər modul/böyük işə başlamazdan ƏVVƏL plan: (1) mənbə oxu (\`docs/STANDARDS.md\` + modul docs) → müzakirə (real qərarlar AskUserQuestion) → təsdiq; (2) plan modu — əhatə + DB/backend/frontend addımları + test + faza sırası → ExitPlanMode; (3) plana sadiq qal — hər faza: kod→test→MD→commit. ⛔ Plan faylı git-ə MD düşməlidir (\`docs/plans/<modul>.md\`) — \`~/.claude/plans/\`-də QALMAMALIDIR. Heç bir qərar/plan git-dən kənarda qalmasın.
+
+### ⛔⛔⛔ MƏRKƏZLƏŞDİR: az kod, çox iş (HƏR İŞDƏ — backend + frontend)
+
+Problemi **bir mərkəzi yerdə** həll et; hər feature/səhifə/endpoint-də təkrarlama (boilerplate) QADAĞAN. Kod yazmadan ƏVVƏL soruş: "təkrar yazacağam, yoxsa bir yerdə həll edib avtomatik istifadə etdirə bilərəm?" Eyni şeyi 3+ yerdə → helper/hook/guard/interceptor/factory-yə çıxar. **Boilerplate = bug riski** ("hər yerdə X yazmağı unutma" tələb edən həll YANLIŞ — biri unudulanda səssiz bug). Nümunələr: 401=mərkəzi interceptor; form=\`<Form><Field>\`+zod; RLS=tenant-extension; xəta=mərkəzi exception filter.
+
+### ⛔⛔⛔ DÜNYA SƏVİYYƏLİ MÜHƏNDİS KİMİ DÜŞÜN (primitiv xəta qarşısı)
+
+1. **SİMPTOM YOX, KATEQORIYA** — bug tapanda: "bu TƏKdir, yoxsa nümunədir? Eyni kök harada var?" Whack-a-mole QADAĞAN — kateqoriyanı mərkəzi yerdə həll et.
+2. **MÖVCUD KODU SORĞULA** — "bu hissə dünya standartıdırmı, yoxsa köhnə/səhvdir?" Köhnədirsə bildir + düzgününü təklif et (təxminlə yox — maintainer docs).
+3. **PRIMITIV YOXLAMA (hər iş sonu):** login olmayan istifadəçi sorğu göndərirmi? Açılmamış modal/tab request edirmi? State iki yerdə saxlanırmı? "Hər yerdə X" tələb edən həll varmı?
+
+**4 mexanizm:** (A) STANDARDS.md = tək həqiqət (işdən əvvəl oxu); (B) plan-fazasında dərin araşdırma (maintainer docs, təxmin yox); (C) DOORS-check — iş sonu adversarial audit (security-auditor; xətanı istifadəçi tapmadan ƏVVƏL özün tap); (D) audit borc-siyahısı (yeni modulla əlaqəli açıq tapıntını da həll et).
+
+### ⛔ Living docs (hər iş sonunda MÜTLƏQ)
+
+Toxunduğun sahənin MD-si yenilənməlidir (DB→13/07, auth→05, tenant→04, API→06, RBAC→16, i18n→18, test→19, stack→03, qərar→09 #NNN, modul status→12). MD source-of-truth. "Bitdi" = decisions-log + modul status yenilənib (MINIMUM).
+
+### ⛔ SHARED komponent (frontend BAŞ qaydası)
+
+Hər UI elementi = paylaşılan \`packages/ui\` komponenti. İşdən ƏVVƏL ui export-larını yoxla; varsa işlət, yoxdursa əvvəl ui-a əlavə et. ⛔ Səhifə içində əl ilə \`<button>\`/\`<div>\` ilə tab/badge "öz versiyam" QADAĞAN.
+
+### ⛔⛔⛔ DESIGN-FIRST (hər səhifə/UI-dan ƏVVƏL — prototip → təsdiq → kod)
+
+**Heç bir səhifə/komponenti real React/Vue kodu kimi yazmazdan ƏVVƏL, əvvəlcə onun prototipini hazırla və istifadəçinin TƏSDİQİNİ al.** İstifadəçi nə qurduğunu görməmişdən kod yazmaq QADAĞAN — "kor-koranə səhifə" = təkrar iş + yanlış istiqamət.
+
+**⛔ MƏCBURİ — \`ui-ux-pro-max\` skill:** hər yeni ekran/UI dizaynında (prototip + sonra real kod) \`ui-ux-pro-max\` skill-ini İŞLƏT. Bu skill dizayn ağlını (50+ stil, semantik token, dashboard/form layout patternləri, a11y, tipoqrafiya, animasiya) verir — prototipdən ƏVVƏL aktivləşdir, dizayn qərarları onun prinsiplərinə tabe olsun. (SaaS/idarəetmə paneli üçün ən uyğun skill — araşdırma ilə təsdiqlənib.)
+
+**Sıra (hər səhifə/ekran üçün):**
+1. **Prototip hazırla** (\`ui-ux-pro-max\` ilə) — tək fayl, statik **HTML + Tailwind (CDN)**, real məzmun + real layout (placeholder "lorem" yox; əsl sahələr/düymələr/state-lər). Fayl \`docs/prototypes/<səhifə>.html\` (git-ə düşür — dizayn tarixçəsi).
+2. **İstifadəçiyə göstər** — brauzerdə açıb görsün (lokal yol və ya \`open\` ilə). İstifadəçi interaktiv baxır (responsive, hover, vəziyyətlər).
+3. **Təsdiq gözlə.** İstifadəçi bəyənməsə → düzəlt VƏ YA istəsə ChatGPT/dizayn üçün **şəkil prompt-u** yaz (səhifənin dizaynını təsvir edən detallı prompt — istifadəçi şəkli sənə göndərəcək, ona uyğun prototipi yenidən qur).
+4. **Yalnız təsdiqdən sonra** real komponenti yaz — prototipdəki **eyni Tailwind class/struktur** birbaşa \`packages/ui\` + səhifəyə köçür (sıfır təkrar iş; prototip = komponentin əsası).
+
+**Niyə:** prototip ucuz + sürətli düzəliş; istifadəçi erkən yönləndirir; təsdiqlənmiş dizayn birbaşa koda çevrilir (mərkəzləşdir prinsipi — dizayn tokenləri prototipdən komponentə). ⛔ Prototip atlamaq = istifadəçinin görmədiyi UI = sonradan yenidən-yazma riski.
+
+**İstisna:** kiçik dəyişiklik (mövcud təsdiqlənmiş səhifədə tək düymə/mətn) — prototip lazım deyil. Yeni səhifə/ekran/böyük UI dəyişikliyi — MÜTLƏQ prototip.
+
+### ⛔⛔⛔ FORM VALİDASİYA — error mesajı HƏMİŞƏ input-un ALTINDA
+
+**Hər form validasiya error mesajı MÜTLƏQ müvafiq input-un BİRBAŞA ALTINDA göstərilməlidir.** İstisna YOX. Hər field öz error-unu öz altında daşıyır — istifadəçi hansı sahənin səhv olduğunu dərhal görür.
+
+- ❌ QADAĞAN: error-ları yuxarıda tək siyahıda yığmaq; alert/toast ilə "form yanlışdır"; error-u input-dan uzaqda göstərmək; error-suz sadəcə border qırmızı.
+- ✅ MƏCBURİ: hər \`<input>\`/\`<select>\`/\`<textarea>\` altında \`errors.<field>\` mesajı (məs. \`{errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}\`).
+- ✅ Mərkəzi field komponenti (\`<FormField>\` — label + input + error bir yerdə) ilə bunu bir dəfə həll et; hər səhifədə təkrar yox (boilerplate = unudulan error = bug). Server validasiya error-ları da müvafiq field-ə map olunur (mümkünsə), ümumi server xətası ayrıca yuxarıda.
+
+### ⛔⛔⛔ NATIVE HTML INPUT QADAĞAN — hər input shared komponent
+
+**Heç bir halda native HTML form elementi birbaşa istifadə etmə.** Xüsusilə date/time/color picker — bunlar MÜTLƏQ \`packages/ui\` shared komponentlərdir.
+
+- ❌ QADAĞAN: \`<input type="date">\`, \`<input type="time">\`, \`<input type="month">\`, \`<input type="color">\`, \`<input type="file">\`, \`<select>\`, xam \`<input>\`/\`<textarea>\`/\`<checkbox>\` səhifə içində.
+- ✅ MƏCBURİ: \`packages/ui\`-dan — \`<Input>\`, \`<DatePicker>\`, \`<TimePicker>\`, \`<DateRangePicker>\`, \`<Select>\`, \`<Textarea>\`, \`<Checkbox>\`, \`<Switch>\`, \`<FileButton>\` və s. Yoxdursa əvvəl ui-a əlavə et, sonra işlət.
+- **Səbəb:** native picker-lər brauzerdən-brauzerə fərqlidir, lokal dili dəstəkləmir, dizayn sistemindən kənardır, əlçatanlıq zəifdir. Shared komponent = vahid UX + lokal dil + dizayn tokenləri.
+
+### ⛔⛔⛔ REACT ROUTER — object config + ayrıca router qovluğu
+
+**React Router HƏMİŞƏ object konfiqurasiyası ilə (\`createBrowserRouter([...])\`) — JSX \`<Routes><Route>\` QADAĞAN.** Bütün route tərifləri ayrıca \`src/router/\` qovluğunda saxlanılır.
+
+- ✅ MƏCBURİ: \`createBrowserRouter\` (və ya freymvork ekvivalenti) route obyektləri massivi ilə; \`<RouterProvider router={router} />\`.
+- ✅ Route-lar \`src/router/\` qovluğunda (məs. \`src/router/index.tsx\` — əsas; lazımsa modul-route-ları ayrı fayllarda \`src/router/payroll.routes.tsx\` və birləşdir). Mərkəzi yer — bütün naviqasiya bir baxışda görünür (data loader, lazy, guard tək yerdə).
+- ❌ QADAĞAN: səhifə komponentləri içində səpələnmiş \`<Routes>\`/\`<Route>\` JSX; route tərifini səhifə faylına yazmaq.
+- Üstünlük: data router imkanları (loader/action/lazy), tip-təhlükəsiz route, mərkəzi guard/layout nesting.
+
+### ⛔⛔⛔ IMPORT ALIAS — dərin nisbi yol QADAĞAN
+
+**İki səviyyədən dərin nisbi import (\`../../\` və daha çox) QADAĞAN — hamısı alias (\`@/\`) ilə.** Workspace paketləri \`@scope/paket\` ilə.
+
+- ❌ QADAĞAN: \`../../../../shared/api/client\`, \`../../lib/api\`, \`../../../components/Button\` — dərin nisbi yollar (kövrək, köçürəndə sınır, oxunmur).
+- ✅ MƏCBURİ: \`@/lib/api\`, \`@/features/payroll/api\`, \`@/components/...\` — app-daxili alias (\`@/*\` → \`./src/*\`); workspace paketləri \`@scope/ui\`, \`@scope/shared\` (cross-package üçün heç vaxt nisbi yol yox).
+- ✅ Eyni qovluq və ya bir səviyyə (\`./x\`, \`../x\`) nisbi qala bilər (lokal, oxunaqlı). İki+ səviyyə (\`../../\`) → alias.
+- **Quraşdırma MƏCBURİ HƏR İKİSİNDƏ:** \`tsconfig.json\` \`paths\` (\`"@/*": ["./src/*"]\`) **VƏ** bundler alias (Vite \`resolve.alias\`, və ya \`vite-tsconfig-paths\` plugin). Yalnız tsconfig-də paths qoymaq YANLIŞdır — runtime-da (Vite/bundler) işləməz, səssiz sınar. Hər ikisi sinxron olmalı.
+
+### ⛔ Dayanmadan davam (autonomous flow)
+
+Sual/qərar yoxdursa dayanma. Yalnız bunlarda dayan: real qərar lazımdır (stack/dizayn/biznes), bloklayıcı problem, faza bitdi. Aksi: kod→test→MD→növbəti, fasiləsiz.
 
 ## Custom rules (bu layihəyə xas)
 
